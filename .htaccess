@@ -1,0 +1,16 @@
+RewriteEngine On
+
+# Establecer el directorio base como /Login
+RewriteBase /Login/
+
+# Si el archivo o directorio no existe físicamente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirigir todo al index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Permitir acceso a archivos y directorios existentes
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule> 
