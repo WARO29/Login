@@ -134,6 +134,7 @@ class AdminEstudiantesController {
             $grado = filter_input(INPUT_POST, 'grado', FILTER_SANITIZE_STRING);
             $grupo = filter_input(INPUT_POST, 'grupo', FILTER_SANITIZE_STRING);
             $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
+            $correo = filter_input(INPUT_POST, 'correo', FILTER_VALIDATE_EMAIL);
 
             // Validar que todos los campos requeridos estén presentes
             if (empty($id_estudiante) || empty($nombre) || empty($grado) || empty($grupo) || empty($estado)) {
@@ -156,7 +157,8 @@ class AdminEstudiantesController {
                 'nombre' => $nombre,
                 'grado' => $grado,
                 'grupo' => $grupo,
-                'estado' => $estado
+                'estado' => $estado,
+                'correo' => $correo
             ]);
 
             if ($resultado) {

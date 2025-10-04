@@ -1,0 +1,10 @@
+<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo circular -->
+  <circle cx="75" cy="75" r="70" fill="#e0e0e0" stroke="#d0d0d0" stroke-width="2"/>
+  
+  <!-- Cabeza del usuario -->
+  <circle cx="75" cy="55" r="20" fill="#999999"/>
+  
+  <!-- Cuerpo del usuario -->
+  <ellipse cx="75" cy="110" rx="25" ry="35" fill="#999999"/>
+</svg>

@@ -5,6 +5,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Configurar zona horaria de Colombia
+date_default_timezone_set('America/Bogota');
+
 use mysqli;
 
 class Database {

@@ -4,6 +4,7 @@ namespace controllers;
 use models\Votos;
 use models\EstudianteModel;
 use models\Candidatos;
+use utils\SessionManager;
 
 class ProcesarVotosController {
     private $votosModel;
@@ -18,13 +19,11 @@ class ProcesarVotosController {
     }
 
     public function procesarVoto() {
-        // Verificar si hay sesión activa
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        // Usar el SessionManager para manejo seguro de sesiones
+        SessionManager::iniciarSesion();
 
         // Verificar que el usuario esté autenticado como estudiante
-        if (!isset($_SESSION['estudiante_id']) || !$_SESSION['es_estudiante']) {
+        if (!SessionManager::esEstudianteAutenticado()) {
             $_SESSION['mensaje'] = "Debes iniciar sesión para votar";
             $_SESSION['tipo'] = "danger";
             header("Location: /Login/");
@@ -116,14 +115,12 @@ class ProcesarVotosController {
     }
 
     public function procesarVotoEnBlanco() {
-        // Verificar si hay sesión activa
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        // Usar el SessionManager para manejo seguro de sesiones
+        SessionManager::iniciarSesion();
 
         try {
             // Verificar que el usuario esté autenticado como estudiante
-            if (!isset($_SESSION['estudiante_id']) || !$_SESSION['es_estudiante']) {
+            if (!SessionManager::esEstudianteAutenticado()) {
                 $_SESSION['mensaje'] = "Debes iniciar sesión para votar";
                 $_SESSION['tipo'] = "danger";
                 header("Location: /Login/");
@@ -320,13 +317,11 @@ class ProcesarVotosController {
      * Cancela la votación del estudiante eliminando sus votos parciales
      */
     public function cancelarVotacion() {
-        // Verificar si hay sesión activa
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        // Usar el SessionManager para manejo seguro de sesiones
+        SessionManager::iniciarSesion();
 
         // Verificar que el usuario esté autenticado
-        if (!isset($_SESSION['estudiante_id']) || !$_SESSION['es_estudiante']) {
+        if (!SessionManager::esEstudianteAutenticado()) {
             $_SESSION['mensaje'] = "Debes iniciar sesión para realizar esta acción";
             $_SESSION['tipo'] = "danger";
             header("Location: /Login/");

@@ -1,23 +1,22 @@
 <?php
 // votos.php
-// Verificar sesión
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+// Incluir las clases necesarias
+require_once __DIR__ . '/../../autoload.php';
 
-// Verificar si el usuario está autenticado
-if (!isset($_SESSION['estudiante_id']) || !isset($_SESSION['es_estudiante']) || $_SESSION['es_estudiante'] !== true) {
+use utils\SessionManager;
+
+// Verificar si el usuario está autenticado usando SessionManager
+if (!SessionManager::esEstudianteAutenticado()) {
     header("Location: /Login/");
     exit();
 }
 
-// Incluir las clases necesarias
-require_once __DIR__ . '/../../autoload.php';
 require_once __DIR__.'/../../config/config.php';
 
 use models\Candidatos;
 use models\Votos;
 use config\Database;
+use utils\CandidatoImageHelper;
 
 // Obtener los candidatos
 $candidatosModel = new Candidatos();
@@ -330,12 +329,12 @@ $csrf_token = $_SESSION['csrf_token'];
             <?php unset($_SESSION['mensaje']); unset($_SESSION['tipo']); ?>
         <?php endif; ?>
         
-        <!-- Temporizador de votación -->
-        <?php if(isset($_SESSION['tiempo_inicio_votacion'])): ?>
+        <!-- Temporizador de votación - solo se muestra cuando el voto está incompleto -->
+        <?php if(isset($_SESSION['tiempo_inicio_votacion']) && ($votoPersonero xor $votoRepresentante)): ?>
         <div class="timer-container">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-clock me-2"></i> Tiempo restante para completar su voto</h5>
-                <span class="badge bg-<?= $porcentajeTiempo > 75 ? 'danger' : ($porcentajeTiempo > 50 ? 'warning' : 'success') ?>">
+                <span class="badge-tiempo bg-<?= $porcentajeTiempo > 75 ? 'danger' : ($porcentajeTiempo > 50 ? 'warning' : 'success') ?>">
                     <?= sprintf("%02d:%02d", $minutosRestantes, $segundosRestantes) ?>
                 </span>
             </div>
@@ -464,8 +463,7 @@ $csrf_token = $_SESSION['csrf_token'];
                 <?php foreach ($personeros as $personero): ?>
                 <div class="col-md-4 mb-4">
                     <div class="candidate-card text-center <?= $votoPersonero ? 'voted-card' : '' ?>">
-                        <img src="<?php echo htmlspecialchars($personero['foto']); ?>" alt="Foto de <?php echo htmlspecialchars($personero['nombre']); ?>" 
-                            class="candidate-image">
+                        <?= CandidatoImageHelper::generarImagenHTML($personero, 150, 150, 'candidate-image') ?>
                         <h4><?php echo htmlspecialchars($personero['nombre'] . ' ' . $personero['apellido']); ?></h4>
                         <p class="text-muted">Número: <?php echo htmlspecialchars($personero['numero']); ?></p>
                         <form action="/Login/procesar_voto" method="POST">
@@ -567,9 +565,7 @@ $csrf_token = $_SESSION['csrf_token'];
                 <?php foreach ($representantes as $representante): ?>
                 <div class="col-md-4 mb-4">
                     <div class="candidate-card text-center <?= $votoRepresentante ? 'voted-card' : '' ?>">
-                        <img src="<?php echo htmlspecialchars($representante['foto']); ?>" 
-                             alt="Foto de <?php echo htmlspecialchars($representante['nombre']); ?>" 
-                             class="candidate-image">
+                        <?= CandidatoImageHelper::generarImagenHTML($representante, 150, 150, 'candidate-image') ?>
                         <h4><?php echo htmlspecialchars($representante['nombre'] . ' ' . $representante['apellido']); ?></h4>
                         <p class="text-muted">Número: <?php echo htmlspecialchars($representante['numero']); ?></p>
                         <span class="badge bg-secondary mb-2">Grado <?php echo htmlspecialchars($representante['grado']); ?></span>
@@ -683,8 +679,8 @@ $csrf_token = $_SESSION['csrf_token'];
         const segundosDisplay = segundosRestantes % 60;
         const porcentajeTiempo = Math.min(100, (tiempoTranscurrido / tiempoLimite) * 100);
         
-        // Actualizar el texto del tiempo
-        document.querySelector('.badge').textContent = 
+        // Actualizar el texto del tiempo SOLO en el temporizador
+        document.querySelector('.badge-tiempo').textContent = 
             String(minutosRestantes).padStart(2, '0') + ':' + 
             String(segundosDisplay).padStart(2, '0');
         
@@ -694,19 +690,29 @@ $csrf_token = $_SESSION['csrf_token'];
         progressBar.setAttribute('aria-valuenow', porcentajeTiempo);
         progressBar.textContent = Math.round(porcentajeTiempo) + '%';
         
-        // Cambiar el color según el tiempo restante
+        // Cambiar el color según el tiempo restante SOLO en el temporizador
         if (porcentajeTiempo > 75) {
             progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-danger';
-            document.querySelector('.badge').className = 'badge bg-danger';
+            document.querySelector('.badge-tiempo').className = 'badge-tiempo bg-danger';
         } else if (porcentajeTiempo > 50) {
             progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-warning';
-            document.querySelector('.badge').className = 'badge bg-warning';
+            document.querySelector('.badge-tiempo').className = 'badge-tiempo bg-warning';
+        } else {
+            progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-success';
+            document.querySelector('.badge-tiempo').className = 'badge-tiempo bg-success';
         }
         
         setTimeout(actualizarTemporizador, 1000);
     }
     
     actualizarTemporizador();
+    <?php endif; ?>
+    
+    // Refrescar la página cada 30 segundos para verificar si la elección ya comenzó o ha cambiado de estado
+    <?php if(!$yaVoto): ?>
+    setInterval(function() {
+        location.reload();
+    }, 30000);
     <?php endif; ?>
     </script>
 </body>

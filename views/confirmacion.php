@@ -1,4 +1,8 @@
 <?php
+// autoload.php se encarga de cargar todas las clases necesarias
+require_once __DIR__ . '/../autoload.php';
+require_once __DIR__ . '/../config/config.php';
+
 // Verificar si la sesión no está iniciada antes de iniciarla
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -64,6 +68,21 @@ $nombre_representante = isset($_SESSION['nombre_representante']) ? $_SESSION['no
             text-align: center;
             border-top: 1px solid #dee2e6;
         }
+        @media print {
+            body {
+                background-color: #fff;
+                display: block;
+            }
+            .confirmation-card {
+                box-shadow: none;
+                border: 1px solid #dee2e6;
+                max-width: 100%;
+                margin: 0 auto;
+            }
+            .confirmation-footer {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -74,6 +93,13 @@ $nombre_representante = isset($_SESSION['nombre_representante']) ? $_SESSION['no
                 <h2>¡Voto Registrado!</h2>
             </div>
             <div class="confirmation-body">
+                <?php if(isset($_SESSION['mensaje_correo'])): ?>
+                    <div class="alert alert-<?= $_SESSION['tipo_correo'] ?> alert-dismissible fade show" role="alert">
+                        <?= $_SESSION['mensaje_correo'] ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <?php unset($_SESSION['mensaje_correo']); unset($_SESSION['tipo_correo']); ?>
+                <?php endif; ?>
                 <h4>Gracias por participar, <?= htmlspecialchars($nombre_completo) ?></h4>
                 <p class="lead">Tu voto ha sido registrado correctamente en nuestro sistema.</p>
                 <p>El proceso de votación ha sido completado exitosamente. Tu participación es importante para nuestra democracia escolar.</p>
@@ -100,7 +126,6 @@ $nombre_representante = isset($_SESSION['nombre_representante']) ? $_SESSION['no
                                     <div class="mt-2 small alert alert-warning py-1 px-2 mb-0">
                                         <?php 
                                         // Consultar si hay candidatos para el grado del estudiante
-                                        require_once __DIR__ . '/../models/Candidatos.php';
                                         $database = new \config\Database();
                                         $db = $database->getConnection();
                                         $candidatosModel = new \models\Candidatos($db);
@@ -138,9 +163,17 @@ $nombre_representante = isset($_SESSION['nombre_representante']) ? $_SESSION['no
                 </div>
             </div>
             <div class="confirmation-footer">
-                <a href="/Login/logout.php" class="btn btn-primary">
+                <a href="/Login/logout.php" class="btn btn-danger">
                     <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
                 </a>
+                <button onclick="window.print()" class="btn btn-secondary">
+                    <i class="fas fa-print me-2"></i>Imprimir o Guardar PDF
+                </button>
+                <form action="/Login/enviar-confirmacion" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-envelope me-2"></i>Enviar por Correo
+                    </button>
+                </form>
             </div>
         </div>
     </div>

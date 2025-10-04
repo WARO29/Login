@@ -2,6 +2,8 @@
 namespace controllers;
 
 use models\Admin;
+use models\Estadisticas;
+use utils\SessionManager;
 
 class AdminController {
     private $adminModel;
@@ -21,6 +23,7 @@ class AdminController {
             $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
             
             if (empty($usuario) || empty($password)) {
+                SessionManager::iniciarSesion();
                 $_SESSION['mensaje'] = "Por favor complete todos los campos";
                 $_SESSION['tipo'] = "danger";
                 header('Location: /Login/admin/login');
@@ -31,19 +34,17 @@ class AdminController {
             $admin = $this->adminModel->authenticate($usuario, $password);
 
             if ($admin) {
-                // Iniciar sesión de administrador
-                if (session_status() == PHP_SESSION_NONE) {
-                    session_start();
-                }
-                $_SESSION['admin_id'] = $admin['id'];
-                $_SESSION['admin_usuario'] = $admin['usuario'];
-                $_SESSION['admin_nombre'] = $admin['nombre'];
-                $_SESSION['es_admin'] = true;
+                // Establecer sesión de administrador usando SessionManager
+                SessionManager::establecerSesionAdmin($admin);
+                
+                // Registrar en el log la información del administrador para depuración
+                error_log("Administrador autenticado - ID: {$admin['id']}, Nombre: {$admin['nombre']}, Imagen: " . (isset($admin['imagen_url']) ? $admin['imagen_url'] : 'No asignada'));
                 
                 // Redirigir al panel de administración
                 header('Location: /Login/admin/panel');
                 exit;
             } else {
+                SessionManager::iniciarSesion();
                 $_SESSION['mensaje'] = "Usuario o contraseña incorrectos";
                 $_SESSION['tipo'] = "danger";
                 header('Location: /Login/admin/login');
@@ -56,32 +57,29 @@ class AdminController {
     }
 
     public function panel() {
-        // Verificar que el usuario esté autenticado como administrador
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
+        // Verificar que el usuario esté autenticado como administrador usando SessionManager
+        if (!SessionManager::esAdminAutenticado()) {
             header('Location: /Login/admin/login');
             exit;
         }
         
-        // Mostrar el panel de administración
+        // Obtener estadísticas para el dashboard
+        $estadisticasModel = new Estadisticas();
+        $totalEstudiantes = $estadisticasModel->getTotalEstudiantes();
+        $totalVotos = $estadisticasModel->getTotalVotos();
+        $totalCandidatos = $estadisticasModel->getTotalCandidatos();
+        $porcentajeParticipacion = $estadisticasModel->getPorcentajeParticipacion();
+        $votosRecientes = $estadisticasModel->getVotosRecientes(5);
+        
+        // Mostrar el panel de administración con las estadísticas
         require_once 'views/auth/panel.php';
     }
 
     public function cerrarSesion() {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        // Cerrar sesión de administrador usando SessionManager
+        SessionManager::cerrarSesionAdmin();
         
-        // Destruir todas las variables de sesión relacionadas con el administrador
-        unset($_SESSION['admin_id']);
-        unset($_SESSION['admin_usuario']);
-        unset($_SESSION['admin_nombre']);
-        unset($_SESSION['es_admin']);
-        
-        session_destroy();
+        // Redirigir al login de administrador
         header('Location: /Login/admin/login');
         exit;
     }

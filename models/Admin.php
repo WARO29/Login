@@ -20,7 +20,7 @@ class Admin {
 
     public function authenticate($usuario, $password) {
         try {
-            $query = "SELECT id, usuario, nombre, password 
+            $query = "SELECT id, usuario, nombre, password, imagen_url 
                      FROM administradores 
                      WHERE usuario = ? 
                      LIMIT 1";
@@ -49,7 +49,7 @@ class Admin {
 
     public function getAllAdmins() {
         try {
-            $query = "SELECT id, usuario, nombre, fecha_creacion 
+            $query = "SELECT id, usuario, nombre, fecha_creacion, imagen_url 
                      FROM administradores 
                      ORDER BY nombre";
             $resultado = $this->conn->query($query);
@@ -66,7 +66,7 @@ class Admin {
 
     public function getById($id) {
         try {
-            $query = "SELECT id, usuario, nombre, fecha_creacion 
+            $query = "SELECT id, usuario, nombre, fecha_creacion, imagen_url 
                      FROM administradores 
                      WHERE id = ? 
                      LIMIT 1";
@@ -84,4 +84,20 @@ class Admin {
             return false;
         }
     }
-} 
+
+    public function updateProfileImage($adminId, $imageUrl) {
+        try {
+            $query = "UPDATE administradores SET imagen_url = ? WHERE id = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("si", $imageUrl, $adminId);
+            
+            if ($stmt->execute()) {
+                return true;
+            }
+            return false;
+        } catch (\Exception $e) {
+            error_log("Error en updateProfileImage: " . $e->getMessage());
+            return false;
+        }
+    }
+}

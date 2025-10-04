@@ -69,7 +69,7 @@ if (isset($_SESSION['mensaje']) && isset($_SESSION['tipo'])) {
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header text-center">
-                        <h4 class="mb-0">Acceso Docente</h4>
+                        <h4 class="mb-0">Acceso Docente y Administrativos.</h4>
                     </div>
                     <div class="card-body p-4">
                         <form method="POST" action="/Login/docente/autenticar">

@@ -1,0 +1,14 @@
+{
+    "name": "user/login",
+    "description": "Sistema de votación escolar.",
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "models\\": "models/",
+            "controllers\\": "controllers/",
+            "config\\": "config/"
+        }
+    }
+}

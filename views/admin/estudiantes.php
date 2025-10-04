@@ -34,23 +34,6 @@ $admin_nombre = $_SESSION['admin_nombre'];
             color: white;
             padding-top: 1rem;
         }
-        .sidebar-link {
-            color: #adb5bd;
-            text-decoration: none;
-            display: block;
-            padding: 0.75rem 1rem;
-            border-radius: 0.25rem;
-            transition: all 0.2s;
-        }
-        .sidebar-link:hover, .sidebar-link.active {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        .sidebar-link i {
-            margin-right: 0.5rem;
-            width: 20px;
-            text-align: center;
-        }
         .main-content {
             min-height: 100vh;
         }
@@ -73,59 +56,7 @@ $admin_nombre = $_SESSION['admin_nombre'];
         <div class="row">
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 sidebar p-0">
-                <div class="d-flex justify-content-center align-items-center py-3">
-                    <h5 class="mb-0">Panel Administrativo</h5>
-                </div>
-                <hr class="text-white-50">
-                <div class="px-3 mb-4">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-user-circle fa-3x text-white-50"></i>
-                        <p class="mt-2 mb-0"><?= htmlspecialchars($admin_nombre) ?></p>
-                        <small class="text-white-50">Administrador</small>
-                    </div>
-                </div>
-                <ul class="nav flex-column px-2">
-                    <li class="nav-item">
-                        <a href="/Login/admin/panel" class="sidebar-link">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/Login/admin/estudiantes" class="sidebar-link active">
-                            <i class="fas fa-users"></i> Estudiantes
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/Login/admin/docentes" class="sidebar-link">
-                            <i class="fas fa-user-tie"></i> Docentes
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="sidebar-link">
-                            <i class="fas fa-user-graduate"></i> Candidatos
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="sidebar-link">
-                            <i class="fas fa-chart-bar"></i> Resultados
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="sidebar-link">
-                            <i class="fas fa-chart-pie"></i> Estadísticas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="sidebar-link">
-                            <i class="fas fa-cog"></i> Configuración
-                        </a>
-                    </li>
-                    <li class="nav-item mt-4">
-                        <a href="/Login/admin/cerrar-sesion" class="sidebar-link text-danger">
-                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                        </a>
-                    </li>
-                </ul>
+                <?php include 'views/admin/sidebar.php'; ?>
             </div>
             
             <!-- Main Content -->
@@ -183,6 +114,7 @@ $admin_nombre = $_SESSION['admin_nombre'];
                                         <tr>
                                             <th>Documento</th>
                                             <th>Nombre</th>
+                                            <th>Correo</th>
                                             <th>Grado</th>
                                             <th>Grupo</th>
                                             <th>Estado</th>
@@ -195,6 +127,7 @@ $admin_nombre = $_SESSION['admin_nombre'];
                                                 <tr>
                                                     <td><?= htmlspecialchars($estudiante['id_estudiante']) ?></td>
                                                     <td><?= htmlspecialchars($estudiante['nombre']) ?></td>
+                                                    <td><?= htmlspecialchars($estudiante['correo'] ?? 'N/A') ?></td>
                                                     <td><?= htmlspecialchars($estudiante['grado']) ?></td>
                                                     <td><?= htmlspecialchars($estudiante['grupo']) ?></td>
                                                     <td>
@@ -205,7 +138,7 @@ $admin_nombre = $_SESSION['admin_nombre'];
                                                         <?php endif; ?>
                                                     </td>
                                                     <td>
-                                                        <button class="btn btn-sm btn-warning" onclick="editarEstudiante('<?= $estudiante['id_estudiante'] ?>', '<?= htmlspecialchars($estudiante['nombre']) ?>', '<?= $estudiante['grado'] ?>', '<?= $estudiante['grupo'] ?>', '<?= $estudiante['estado'] ?>')">
+                                                        <button class="btn btn-sm btn-warning" onclick="editarEstudiante('<?= $estudiante['id_estudiante'] ?>', '<?= htmlspecialchars($estudiante['nombre']) ?>', '<?= htmlspecialchars($estudiante['correo'] ?? '') ?>', '<?= $estudiante['grado'] ?>', '<?= $estudiante['grupo'] ?>', '<?= $estudiante['estado'] ?>')">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
                                                         <button class="btn btn-sm btn-danger" onclick="confirmarEliminar('<?= $estudiante['id_estudiante'] ?>')">
@@ -357,6 +290,10 @@ $admin_nombre = $_SESSION['admin_nombre'];
                             <input type="text" class="form-control" id="edit_nombre" name="nombre" required>
                         </div>
                         <div class="mb-3">
+                           <label for="edit_correo" class="form-label">Correo Electrónico</label>
+                           <input type="email" class="form-control" id="edit_correo" name="correo">
+                       </div>
+                        <div class="mb-3">
                             <label for="edit_grado" class="form-label">Grado</label>
                             <select class="form-select" id="edit_grado" name="grado" required>
                                 <option value="">Seleccione un grado</option>
@@ -417,26 +354,131 @@ $admin_nombre = $_SESSION['admin_nombre'];
         </div>
     </div>
     
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Función para ocultar automáticamente las alertas después de 5 segundos
         document.addEventListener('DOMContentLoaded', function() {
             const alertElements = document.querySelectorAll('.auto-dismiss');
             
-            alertElements.forEach(function(alert) {
-                // Crear una instancia de Bootstrap Alert
-                const bsAlert = new bootstrap.Alert(alert);
-                
-                // Configurar el temporizador para cerrar la alerta después de 5 segundos
+            if (alertElements.length > 0) {
                 setTimeout(function() {
-                    bsAlert.close();
-                }, 5000); // 5000 ms = 5 segundos
+                    alertElements.forEach(function(alert) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    });
+                }, 5000);
+            }
+            
+            // Inicializar tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
             });
+            
+            // Configurar la funcionalidad de carga de imagen de perfil
+            setupProfileImageUpload();
         });
-
-        function editarEstudiante(documento, nombre, grado, grupo, estado) {
+        
+        // Manejo de la subida de imágenes de perfil
+        function setupProfileImageUpload() {
+            // Vista previa de la imagen seleccionada
+            $('#profile_image').change(function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#imagePreview').show();
+                        $('#imagePreview img').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    $('#imagePreview').hide();
+                }
+            });
+            
+            // Subir la imagen al servidor
+            $('#uploadImageBtn').click(function() {
+                const fileInput = $('#profile_image')[0];
+                if (fileInput.files.length === 0) {
+                    $('#uploadError').text('Por favor, selecciona una imagen').show();
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('profile_image', fileInput.files[0]);
+                
+                // Mostrar indicador de carga
+                $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Subiendo...');
+                $(this).prop('disabled', true);
+                $('#uploadError').hide();
+                $('#uploadSuccess').hide();
+                
+                $.ajax({
+                    url: '/Login/upload_profile_image_simple.php',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Actualizar la imagen de perfil en TODAS las instancias de la página
+                            const newImageUrl = response.image_url + '?v=' + new Date().getTime();
+                            
+                            // Actualizar todas las imágenes de perfil del administrador (sidebar, header, etc.)
+                            $('img[id*="profile-image"], img[alt*="perfil"], img[alt*="Imagen de perfil"]').each(function() {
+                                $(this).attr('src', newImageUrl);
+                            });
+                            
+                            // Si ya hay una imagen específica en el sidebar, actualizarla
+                            if ($('#profile-image').length) {
+                                $('#profile-image').attr('src', newImageUrl);
+                            }
+                            // Si hay un ícono, reemplazarlo por la imagen
+                            else if ($('#profile-icon').length) {
+                                const imgHtml = '<img id="profile-image" src="' + newImageUrl + '" alt="Imagen de perfil" ' +
+                                               'class="rounded-circle img-fluid mb-2" style="width: 80px; height: 80px; object-fit: cover;">';
+                                $('#profile-icon').replaceWith(imgHtml);
+                            }
+                            
+                            // Actualizar cualquier imagen de administrador en el header o navbar
+                            $('.navbar img, .header img, .admin-profile img').each(function() {
+                                if ($(this).attr('alt') && ($(this).attr('alt').includes('admin') || $(this).attr('alt').includes('perfil'))) {
+                                    $(this).attr('src', newImageUrl);
+                                }
+                            });
+                            
+                            // Mostrar mensaje de éxito
+                            $('#uploadSuccess').text(response.message).show();
+                            
+                            // Cerrar el modal después de 2 segundos
+                            setTimeout(function() {
+                                $('#profileImageModal').modal('hide');
+                                // Limpiar el formulario
+                                $('#profileImageForm')[0].reset();
+                                $('#imagePreview').hide();
+                                $('#uploadSuccess').hide();
+                            }, 2000);
+                        } else {
+                            $('#uploadError').text(response.message).show();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#uploadError').text('Error al subir la imagen: ' + error).show();
+                    },
+                    complete: function() {
+                        $('#uploadImageBtn').html('Subir imagen');
+                        $('#uploadImageBtn').prop('disabled', false);
+                    }
+                });
+            });
+        }
+        
+        function editarEstudiante(documento, nombre, correo, grado, grupo, estado) {
             document.getElementById('edit_documento').value = documento;
             document.getElementById('edit_nombre').value = nombre;
+            document.getElementById('edit_correo').value = correo;
             document.getElementById('edit_grado').value = grado;
             document.getElementById('edit_grupo').value = grupo;
             document.getElementById('edit_estado').value = estado;
@@ -507,5 +549,35 @@ $admin_nombre = $_SESSION['admin_nombre'];
             });
         });
     </script>
+    
+    <!-- Modal para cambiar la imagen de perfil -->
+    <div class="modal fade" id="profileImageModal" tabindex="-1" aria-labelledby="profileImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profileImageModalLabel">Cambiar imagen de perfil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="profileImageForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="profile_image" class="form-label">Selecciona una nueva imagen</label>
+                            <input class="form-control" type="file" id="profile_image" name="profile_image" accept="image/*" required>
+                            <div class="form-text">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB.</div>
+                        </div>
+                        <div id="imagePreview" class="text-center my-3" style="display: none;">
+                            <img src="" alt="Vista previa" class="img-fluid rounded" style="max-height: 200px;">
+                        </div>
+                        <div class="alert alert-danger" id="uploadError" style="display: none;"></div>
+                        <div class="alert alert-success" id="uploadSuccess" style="display: none;"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="uploadImageBtn">Subir imagen</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

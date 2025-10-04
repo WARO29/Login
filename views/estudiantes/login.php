@@ -43,15 +43,15 @@ if (isset($_SESSION['mensaje']) && isset($_SESSION['tipo'])) {
 </head>
 <body class="d-flex justify-content-center align-items-center vh-100">
     <div class="container">
-        <?php if($status == "mensaje"): ?>
-            <div class="alert alert-<?= $tipo ?> alert-dismissible fade show" role="alert">
-                <?= $mensaje ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
-        
         <div class="row justify-content-center">
             <div class="col-md-4">
+                <?php if($status == "mensaje"): ?>
+                    <div class="alert alert-<?= $tipo ?> alert-dismissible fade show" role="alert" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                        <?= $mensaje ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.5rem 0.5rem;"></button>
+                    </div>
+                <?php endif; ?>
+                
                 <div class="card">
                     <div class="card-header text-center">
                         <h4 class="mb-0">Acceso Estudiantes</h4>
@@ -79,5 +79,20 @@ if (isset($_SESSION['mensaje']) && isset($_SESSION['tipo'])) {
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Script para hacer que las alertas desaparezcan automáticamente después de 5 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            var alertElement = document.querySelector('.alert');
+            if (alertElement) {
+                // Crear un objeto de alerta Bootstrap
+                var bsAlert = new bootstrap.Alert(alertElement);
+                
+                // Establecer un temporizador para cerrar la alerta después de 5 segundos
+                setTimeout(function() {
+                    bsAlert.close();
+                }, 5000); // 5000 ms = 5 segundos
+            }
+        });
+    </script>
 </body>
 </html> 

@@ -97,15 +97,16 @@ class EstudianteModel {
      */
     public function actualizarEstudiante($id_estudiante, $datos) {
         try {
-            $query = "UPDATE estudiantes 
-                      SET nombre = ?, grado = ?, grupo = ?, estado = ? 
+            $query = "UPDATE estudiantes
+                      SET nombre = ?, correo = ?, grado = ?, grupo = ?, estado = ?
                       WHERE id_estudiante = ?";
             
             $stmt = $this->conn->prepare($query);
-            $stmt->bind_param("sssss", 
-                $datos['nombre'], 
-                $datos['grado'], 
-                $datos['grupo'], 
+            $stmt->bind_param("ssssss",
+                $datos['nombre'],
+                $datos['correo'],
+                $datos['grado'],
+                $datos['grupo'],
                 $datos['estado'],
                 $id_estudiante
             );
@@ -236,8 +237,8 @@ class EstudianteModel {
         try {
             error_log("Intentando autenticar con ID: " . $id_estudiante);
             
-            // Consulta simplificada que solo busca por id_estudiante
-            $query = "SELECT * FROM estudiantes WHERE id_estudiante = ?";
+            // Consulta que busca por id_estudiante y verifica que el estado sea Activo (1)
+            $query = "SELECT id_estudiante, nombre, correo, grado, grupo, estado FROM estudiantes WHERE id_estudiante = ? AND estado = 1";
             error_log("Consulta SQL: " . $query . " con valor: " . $id_estudiante);
             
             $stmt = $this->conn->prepare($query);
@@ -251,6 +252,19 @@ class EstudianteModel {
                 $estudiante = $resultado->fetch_assoc();
                 error_log("Estudiante encontrado: " . json_encode($estudiante));
                 return $estudiante;
+            }
+            
+            // Verificar si el estudiante existe pero no está activo
+            $query = "SELECT * FROM estudiantes WHERE id_estudiante = ? AND estado != 1";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("s", $id_estudiante);
+            $stmt->execute();
+            $resultado = $stmt->get_result();
+            
+            if ($resultado->num_rows > 0) {
+                error_log("Estudiante encontrado pero no está activo: " . $id_estudiante);
+                // Retornamos null pero con un indicador específico para el controlador
+                return ['error' => 'inactive'];
             }
             
             error_log("No se encontró ningún estudiante con ID: " . $id_estudiante);

@@ -4,6 +4,8 @@ namespace controllers;
 
 use models\EstudianteModel;
 use config\Database;
+use utils\SessionManager;
+use utils\EleccionMiddleware;
 //require_once '../config/config.php'; // Asegúrate de incluir el archivo de la clase Database
 
 class AuthController {
@@ -25,9 +27,7 @@ class AuthController {
             if (empty($id_estudiante)) {
                 $mensaje = "Por favor ingrese su ID de estudiante";
                 $tipo = "danger";
-                if (session_status() == PHP_SESSION_NONE) {
-                    session_start();
-                }
+                SessionManager::iniciarSesion();
                 $_SESSION['mensaje'] = $mensaje;
                 $_SESSION['tipo'] = $tipo;
                 header("Location: /Login/");
@@ -38,74 +38,91 @@ class AuthController {
             if (!preg_match('/^[0-9]+$/', $id_estudiante)) {
                 $mensaje = "El ID de estudiante debe contener solo números";
                 $tipo = "danger";
-                if (session_status() == PHP_SESSION_NONE) {
-                    session_start();
-                }
+                SessionManager::iniciarSesion();
                 $_SESSION['mensaje'] = $mensaje;
                 $_SESSION['tipo'] = $tipo;
                 header("Location: /Login/");
                 exit();
             }
 
-            // Intentar autenticar al estudiante (verificando id_estudiante)
+            // Verificar si hay elecciones activas y si los estudiantes pueden votar
+            $verificacionElecciones = EleccionMiddleware::verificarAccesoVotante('estudiante');
+            if (!$verificacionElecciones['puede_acceder']) {
+                // Registrar intento de acceso bloqueado
+                EleccionMiddleware::registrarIntentoAcceso([
+                    'tipo_usuario' => 'estudiante',
+                    'id_usuario' => $id_estudiante,
+                    'motivo' => $verificacionElecciones['motivo'],
+                    'id_eleccion' => $verificacionElecciones['eleccion_activa']['id'] ?? null
+                ]);
+                
+                $mensaje = $verificacionElecciones['mensaje'];
+                $tipo = "warning";
+                SessionManager::iniciarSesion();
+                $_SESSION['mensaje'] = $mensaje;
+                $_SESSION['tipo'] = $tipo;
+                header("Location: /Login/estado-elecciones");
+                exit();
+            }
+            
+            // Intentar autenticar al estudiante (verificando id_estudiante y estado activo)
             $estudiante = $this->estudianteModel->autenticarEstudiante($id_estudiante);
+
+            // Verificar si el estudiante existe pero no está activo
+            if (is_array($estudiante) && isset($estudiante['error']) && $estudiante['error'] === 'inactive') {
+                $mensaje = "Tu cuenta no está activa. Por favor contacta al administrador.";
+                $tipo = "danger";
+                SessionManager::iniciarSesion();
+                $_SESSION['mensaje'] = $mensaje;
+                $_SESSION['tipo'] = $tipo;
+                header("Location: /Login/");
+                exit();
+            }
 
             if ($estudiante) {
                 // Verificar si el estudiante ya votó
                 if ($this->estudianteModel->haVotado($id_estudiante)) {
                     $mensaje = "Ya has ejercido tu voto";
                     $tipo = "warning";
-                    if (session_status() == PHP_SESSION_NONE) {
-                        session_start();
-                    }
+                    SessionManager::iniciarSesion();
                     $_SESSION['mensaje'] = $mensaje;
                     $_SESSION['tipo'] = $tipo;
                     header("Location: /Login/");
                     exit();
                 }
 
-                // Iniciar sesión y guardar datos del estudiante
-                if (session_status() == PHP_SESSION_NONE) {
-                    session_start();
-                }
+                // Establecer sesión de estudiante usando SessionManager
+                SessionManager::establecerSesionEstudiante($estudiante);
                 
-                // Guardar datos completos del estudiante en la sesión
-                $_SESSION['estudiante_id'] = $estudiante['id_estudiante'];
-                $_SESSION['documento'] = $estudiante['documento'];
-                $_SESSION['nombre'] = $estudiante['nombre'];
-                $_SESSION['apellido'] = $estudiante['apellido'];
-                $_SESSION['nombre_completo'] = $estudiante['nombre'] . ' ' . $estudiante['apellido'];
-                $_SESSION['grado'] = $estudiante['grado'];
-                $_SESSION['es_estudiante'] = true;
+                // Registrar acceso exitoso
+                EleccionMiddleware::registrarAccesoExitoso([
+                    'tipo_usuario' => 'estudiante',
+                    'id_usuario' => $id_estudiante,
+                    'nombre_usuario' => $estudiante['nombre'] . ' ' . $estudiante['apellido'],
+                    'id_eleccion' => $verificacionElecciones['eleccion_activa']['id'] ?? null
+                ]);
                 
                 // Redirigir a la página de votación
-                header("Location: /Login/views/estudiantes/votos.php");
+                header("Location: /Login/estudiante/votos");
                 exit();
             } else {
                 $mensaje = "ID de estudiante no encontrado en el sistema";
                 $tipo = "danger";
-                if (session_status() == PHP_SESSION_NONE) {
-                    session_start();
-                }
+                SessionManager::iniciarSesion();
                 $_SESSION['mensaje'] = $mensaje;
                 $_SESSION['tipo'] = $tipo;
                 header("Location: /Login/");
                 exit();
             }
         } else {
-            // Si no es POST, mostrar la vista de login
-            require "views/auth/login.php";
+            // Si no es POST, mostrar la vista de login para estudiantes
+            require "views/estudiantes/login.php";
         }
     }
 
     public function logout() {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        // Destruir todas las variables de sesión
-        $_SESSION = array();
-        session_destroy();
+        // Cerrar sesión de estudiante usando SessionManager
+        SessionManager::cerrarSesionEstudiante();
         
         // Redirigir al login
         header("Location: /Login/");
