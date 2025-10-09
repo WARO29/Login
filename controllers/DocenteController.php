@@ -23,7 +23,7 @@ class DocenteController {
 
     public function autenticar() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $documento = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_STRING);
+            $documento = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             
             if (!$documento) {
                 if (session_status() == PHP_SESSION_NONE) {

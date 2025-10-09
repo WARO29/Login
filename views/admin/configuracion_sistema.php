@@ -269,14 +269,14 @@ if (!isset($_SESSION['admin_id'])) {
             document.querySelector('#modalNuevaConfig form').reset();
         });
         
-        // Configurar la funcionalidad de carga de imagen de perfil
+        // Funcionalidad de carga de imagen manejada por profile-image-upload.js
         $(document).ready(function() {
-            setupProfileImageUpload();
+            // Inicialización automática por el archivo externo
         });
     </script>
     
     <script src="/Login/assets/js/profile-image-upload.js"></script>
     
-    <?php include 'views/admin/includes/profile-image-modal.php'; ?>
+    <!-- Modal incluido desde sidebar.php -->
 </body>
 </html>

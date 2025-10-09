@@ -262,24 +262,54 @@ if (!isset($_SESSION['admin_id'])) {
                                                     <td><?php echo date('d/m/Y H:i', strtotime($eleccion['fecha_cierre'])); ?></td>
                                                     <td>
                                                         <?php
+                                                        // Determinar el estado real basado en fechas si el estado está vacío
+                                                        $estadoReal = $eleccion['estado'];
+                                                        $fechaActual = new DateTime();
+                                                        $fechaInicio = new DateTime($eleccion['fecha_inicio']);
+                                                        $fechaCierre = new DateTime($eleccion['fecha_cierre']);
+                                                        
+                                                        // Si el estado está vacío o es nulo, determinarlo automáticamente
+                                                        if (empty($estadoReal)) {
+                                                            if ($fechaActual < $fechaInicio) {
+                                                                $estadoReal = 'programada';
+                                                            } elseif ($fechaActual >= $fechaInicio && $fechaActual <= $fechaCierre) {
+                                                                $estadoReal = 'activa';
+                                                            } else {
+                                                                $estadoReal = 'cerrada';
+                                                            }
+                                                        }
+                                                        
                                                         $badgeClass = '';
-                                                        switch ($eleccion['estado']) {
+                                                        $estadoTexto = '';
+                                                        switch ($estadoReal) {
                                                             case 'programada':
                                                                 $badgeClass = 'bg-info';
+                                                                $estadoTexto = 'Programada';
                                                                 break;
                                                             case 'activa':
                                                                 $badgeClass = 'bg-success';
+                                                                $estadoTexto = 'Activa';
                                                                 break;
                                                             case 'cerrada':
                                                                 $badgeClass = 'bg-secondary';
+                                                                $estadoTexto = 'Cerrada';
+                                                                break;
+                                                            case 'archivada':
+                                                                $badgeClass = 'bg-dark';
+                                                                $estadoTexto = 'Archivada';
                                                                 break;
                                                             case 'cancelada':
                                                                 $badgeClass = 'bg-danger';
+                                                                $estadoTexto = 'Cancelada';
+                                                                break;
+                                                            default:
+                                                                $badgeClass = 'bg-warning';
+                                                                $estadoTexto = 'Sin Estado';
                                                                 break;
                                                         }
                                                         ?>
                                                         <span class="badge <?php echo $badgeClass; ?> estado-badge">
-                                                            <?php echo ucfirst($eleccion['estado']); ?>
+                                                            <?php echo $estadoTexto; ?>
                                                         </span>
                                                     </td>
                                                     <td>

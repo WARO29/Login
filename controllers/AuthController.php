@@ -18,7 +18,7 @@ class AuthController {
     public function login() {
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Sanitizar el ID de estudiante ingresado
-            $id_estudiante = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_STRING);
+            $id_estudiante = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             
             // Registrar el ID que se está intentando autenticar
             error_log("Formulario enviado con ID: " . $id_estudiante);

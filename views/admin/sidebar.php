@@ -27,22 +27,19 @@ function isConfigMenuExpanded($current) {
 </div>
 <hr class="text-white-50">
 
-<!-- Perfil del administrador -->
 <div class="px-3 mb-4">
     <div class="text-center mb-3">
         <div class="position-relative d-inline-block">
             <?php
             // Verificar si hay una imagen en la sesión
-            if (isset($_SESSION['admin_imagen']) && !empty($_SESSION['admin_imagen'])) {
-            ?>
-                <img id="profile-image" src="<?= $_SESSION['admin_imagen'] ?>?v=<?= time() ?>" 
-                     alt="<?= htmlspecialchars($_SESSION['admin_nombre'] ?? 'Administrador') ?>" 
-                     class="rounded-circle img-fluid mb-2" style="width: 80px; height: 80px; object-fit: cover;">
-            <?php } else { ?>
+            if (isset($_SESSION['admin_imagen']) && !empty($_SESSION['admin_imagen'])): ?>
+                <img id="sidebar-profile-image" src="<?= $_SESSION['admin_imagen'] ?>?v=<?= time() ?>" alt="<?= htmlspecialchars($_SESSION['admin_nombre'] ?? 'Administrador') ?>" 
+                     class="rounded-circle img-fluid mb-2 profile-img-main" style="width: 80px; height: 80px; object-fit: cover;">
+            <?php else: ?>
                 <i id="profile-icon" class="fas fa-user-circle fa-3x text-white-50"></i>
-            <?php } ?>
+            <?php endif; ?>
             
-            <!-- Botón para cambiar imagen (visible en panel principal y vistas de configuración) -->
+            <!-- Botón para cambiar imagen -->
             <?php 
             $show_button = (strpos($current_path, 'admin/panel') !== false ||
                            strpos($current_path, 'admin/configuracion') !== false ||
@@ -51,12 +48,13 @@ function isConfigMenuExpanded($current) {
                            strpos($current_path, 'admin/estudiantes') !== false ||
                            strpos($current_path, 'admin/docentes') !== false ||
                            strpos($current_path, 'admin/administrativos') !== false ||
-                           strpos($current_path, 'admin/candidatos') !== false);
+                           strpos($current_path, 'admin/candidatos') !== false ||
+                           strpos($current_path, 'admin/mesas-virtuales') !== false);
             if ($show_button): 
             ?>
                 <button type="button" id="change-profile-image" class="btn btn-sm btn-primary position-absolute" 
                         style="bottom: 10px; right: -5px; border-radius: 50%; width: 25px; height: 25px; padding: 0;" 
-                        data-bs-toggle="modal" data-bs-target="#profileImageModal">
+                        data-bs-toggle="modal" data-bs-target="#profileModal">
                     <i class="fas fa-camera" style="font-size: 12px;"></i>
                 </button>
             <?php endif; ?>
@@ -203,3 +201,6 @@ function isConfigMenuExpanded($current) {
     background-color: rgba(220, 53, 69, 0.2);
 }
 </style>
+
+<!-- Incluir modal de imagen de perfil -->
+<?php include __DIR__ . '/includes/profile-modal.php'; ?>

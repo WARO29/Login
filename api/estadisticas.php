@@ -22,32 +22,58 @@ use models\Estadisticas;
 use models\Votos;
 use models\DocenteModel;
 use models\Candidatos;
+use models\EleccionConfigModel;
 
 // Crear instancia del modelo de estadísticas y otros modelos
 $estadisticasModel = new Estadisticas();
 $votosModel = new Votos();
 $docenteModel = new DocenteModel();
 $candidatosModel = new Candidatos();
+$eleccionModel = new EleccionConfigModel();
 
-// Obtener estadísticas de estudiantes
-$estadisticas_estudiantes = [
-    'totalEstudiantes' => $estadisticasModel->getTotalEstudiantes(),
-    'totalVotos' => $estadisticasModel->getTotalVotos(),
-    'votosBlanco' => $votosModel->getConteoVotosEnBlanco('PERSONERO') + $votosModel->getConteoVotosEnBlanco('REPRESENTANTE'),
-    'porcentajeParticipacion' => $estadisticasModel->getPorcentajeParticipacion()
-];
+// Verificar si hay elecciones activas (no archivadas)
+$eleccionActiva = $eleccionModel->getConfiguracionActiva();
+$hayEleccionActiva = $eleccionActiva && $eleccionActiva['estado'] !== 'archivada';
 
-// Obtener estadísticas de docentes
-$estadisticas_docentes = $votosModel->getEstadisticasVotacionDocentes();
+// Si no hay elección activa, retornar datos en cero
+if (!$hayEleccionActiva) {
+    $estadisticas_estudiantes = [
+        'totalEstudiantes' => $estadisticasModel->getTotalEstudiantes(),
+        'totalVotos' => 0,
+        'votosBlanco' => 0,
+        'porcentajeParticipacion' => 0
+    ];
+    
+    $estadisticas_docentes = [
+        'total_docentes' => $docenteModel->getTotalDocentes(),
+        'docentes_votaron' => 0,
+        'porcentaje_participacion' => 0
+    ];
+    
+    $totalCandidatos = 0;
+    $personeros = [];
+    $representantes = [];
+} else {
+    // Obtener estadísticas de estudiantes para elección activa
+    $estadisticas_estudiantes = [
+        'totalEstudiantes' => $estadisticasModel->getTotalEstudiantes(),
+        'totalVotos' => $estadisticasModel->getTotalVotos(),
+        'votosBlanco' => $votosModel->getConteoVotosEnBlanco('PERSONERO') + $votosModel->getConteoVotosEnBlanco('REPRESENTANTE'),
+        'porcentajeParticipacion' => $estadisticasModel->getPorcentajeParticipacion()
+    ];
 
-// Obtener información de candidatos
-$totalCandidatos = $estadisticasModel->getTotalCandidatos();
+    // Obtener estadísticas de docentes
+    $estadisticas_docentes = $votosModel->getEstadisticasVotacionDocentes();
 
-// Obtener conteo de votos por candidato
-error_log("Solicitando datos de votos por tipo PERSONERO");
-$personeros = $votosModel->getConteoVotosPorTipo('PERSONERO');
-error_log("Solicitando datos de votos por tipo REPRESENTANTE");
-$representantes = $votosModel->getConteoVotosPorTipo('REPRESENTANTE');
+    // Obtener información de candidatos
+    $totalCandidatos = $estadisticasModel->getTotalCandidatos();
+
+    // Obtener conteo de votos por candidato
+    error_log("Solicitando datos de votos por tipo PERSONERO");
+    $personeros = $votosModel->getConteoVotosPorTipo('PERSONERO');
+    error_log("Solicitando datos de votos por tipo REPRESENTANTE");
+    $representantes = $votosModel->getConteoVotosPorTipo('REPRESENTANTE');
+}
 
 // Asegurarnos de que los datos sean arrays
 $personeros = is_array($personeros) ? $personeros : [];

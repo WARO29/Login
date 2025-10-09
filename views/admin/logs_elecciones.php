@@ -257,13 +257,13 @@ if (!isset($_SESSION['admin_id'])) {
                                                     <div class="text-muted small">
                                                         Tipo: <?php echo ucfirst($log['tipo_usuario']); ?>
                                                         <?php if (!empty($log['motivo'])): ?>
-                                                            | Motivo: <?php echo htmlspecialchars($log['motivo']); ?>
+                                                            | Motivo: <?php echo htmlspecialchars($log['motivo'] ?? ''); ?>
                                                         <?php endif; ?>
                                                     </div>
                                                     <div class="text-muted small">
-                                                        IP: <?php echo htmlspecialchars($log['ip_address']); ?>
+                                                        IP: <?php echo htmlspecialchars($log['ip_address'] ?? 'N/A'); ?>
                                                         <?php if (!empty($log['nombre_eleccion'])): ?>
-                                                            | Elección: <?php echo htmlspecialchars($log['nombre_eleccion']); ?>
+                                                            | Elección: <?php echo htmlspecialchars($log['nombre_eleccion'] ?? ''); ?>
                                                         <?php endif; ?>
                                                     </div>
                                                 </div>
@@ -288,14 +288,14 @@ if (!isset($_SESSION['admin_id'])) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <script>
-        // Configurar la funcionalidad de carga de imagen de perfil
+        // Funcionalidad de carga de imagen manejada por profile-image-upload.js
         $(document).ready(function() {
-            setupProfileImageUpload();
+            // Inicialización automática por el archivo externo
         });
     </script>
     
     <script src="/Login/assets/js/profile-image-upload.js"></script>
     
-    <?php include 'views/admin/includes/profile-image-modal.php'; ?>
+    <!-- Modal incluido desde sidebar.php -->
 </body>
 </html>

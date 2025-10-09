@@ -576,6 +576,34 @@ switch ($path) {
         $controller->limpiarPersonal();
         break;
         
+    case 'admin/asignar-estudiantes':
+        // Vista para asignar estudiantes a una mesa específica
+        require_once 'controllers/MesasVirtualesController.php';
+        $controller = new controllers\MesasVirtualesController();
+        $controller->asignarEstudiantes();
+        break;
+        
+    case 'admin/asignar-estudiantes-mesa':
+        // Procesar asignación de estudiantes a una mesa
+        require_once 'controllers/MesasVirtualesController.php';
+        $controller = new controllers\MesasVirtualesController();
+        $controller->procesarAsignacionEstudiantes();
+        break;
+        
+    case 'admin/registrar-estudiante-mesa':
+        // Registrar nuevo estudiante y asignarlo a mesa
+        require_once 'controllers/MesasVirtualesController.php';
+        $controller = new controllers\MesasVirtualesController();
+        $controller->registrarEstudianteMesa();
+        break;
+        
+    case 'admin/desasignar-estudiante-mesa':
+        // Desasignar estudiante de mesa
+        require_once 'controllers/MesasVirtualesController.php';
+        $controller = new controllers\MesasVirtualesController();
+        $controller->desasignarEstudianteMesa();
+        break;
+        
     case 'admin/regenerar-personal':
         // Regenerar personal para mesas incompletas
         require_once 'controllers/MesasVirtualesController.php';
@@ -617,6 +645,28 @@ switch ($path) {
         require_once 'controllers/LogsController.php';
         $controller = new controllers\LogsController();
         $controller->mesasVirtuales();
+        break;
+        
+    // Rutas para Archivado de Elecciones
+    case 'admin/archivar-elecciones':
+        // Ejecutar archivado manual
+        require_once 'controllers/ArchivadoEleccionesController.php';
+        $controller = new controllers\ArchivadoEleccionesController();
+        $controller->ejecutarArchivadoManual();
+        break;
+        
+    case 'api/verificar-estado-elecciones':
+        // API para verificar estado de elecciones
+        require_once 'controllers/ArchivadoEleccionesController.php';
+        $controller = new controllers\ArchivadoEleccionesController();
+        $controller->verificarEstadoElecciones();
+        break;
+        
+    case 'api/archivar-eleccion':
+        // API para archivar elección específica
+        require_once 'controllers/ArchivadoEleccionesController.php';
+        $controller = new controllers\ArchivadoEleccionesController();
+        $controller->archivarEleccionEspecifica();
         break;
         
     case 'admin/agregar-personal':

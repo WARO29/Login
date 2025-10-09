@@ -68,11 +68,11 @@ class AdminEstudiantesController {
         // Verificar si es una solicitud POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtener y validar los datos del formulario
-            $id_estudiante = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_STRING);
-            $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_STRING);
-            $grado = filter_input(INPUT_POST, 'grado', FILTER_SANITIZE_STRING);
-            $grupo = filter_input(INPUT_POST, 'grupo', FILTER_SANITIZE_STRING);
-            $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
+            $id_estudiante = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $grado = filter_input(INPUT_POST, 'grado', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $grupo = filter_input(INPUT_POST, 'grupo', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             // Validar que todos los campos requeridos estén presentes
             if (empty($id_estudiante) || empty($nombre) || empty($grado) || empty($grupo) || empty($estado)) {
@@ -129,11 +129,11 @@ class AdminEstudiantesController {
         // Verificar si es una solicitud POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtener y validar los datos del formulario
-            $id_estudiante = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_STRING);
-            $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_STRING);
-            $grado = filter_input(INPUT_POST, 'grado', FILTER_SANITIZE_STRING);
-            $grupo = filter_input(INPUT_POST, 'grupo', FILTER_SANITIZE_STRING);
-            $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
+            $id_estudiante = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $grado = filter_input(INPUT_POST, 'grado', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $grupo = filter_input(INPUT_POST, 'grupo', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $correo = filter_input(INPUT_POST, 'correo', FILTER_VALIDATE_EMAIL);
 
             // Validar que todos los campos requeridos estén presentes
@@ -191,7 +191,7 @@ class AdminEstudiantesController {
         // Verificar si es una solicitud POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtener el ID del estudiante a eliminar
-            $id_estudiante = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_STRING);
+            $id_estudiante = filter_input(INPUT_POST, 'documento', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             if (empty($id_estudiante)) {
                 $_SESSION['mensaje'] = "ID de estudiante no válido.";

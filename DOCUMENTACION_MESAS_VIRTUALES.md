@@ -220,6 +220,52 @@ El **Sistema de Mesas Virtuales** ha sido completamente integrado al sistema de 
 1. Refrescar la página (F5)
 2. Limpiar cache del navegador
 
+#### 5. "Botones deshabilitados"
+**Causa**: Elección ya finalizada (fecha de cierre pasada)
+**Explicación**: 
+- El sistema protege automáticamente elecciones finalizadas
+- Los datos históricos no pueden modificarse para preservar integridad
+- Solo la consulta (botón "Ver") permanece disponible
+**Solución**: Normal - comportamiento de seguridad del sistema
+
+## 🔒 Protección de Elecciones Finalizadas
+
+### Sistema de Validación Temporal
+
+El sistema implementa protección automática para elecciones que ya han finalizado:
+
+#### Lógica de Protección
+- **Elecciones Modificables**: `fecha_actual <= fecha_cierre`
+  - Todos los botones habilitados
+  - Funcionalidad completa disponible
+  - Colores normales en la interfaz
+
+- **Elecciones No Modificables**: `fecha_actual > fecha_cierre`
+  - Botones de acción deshabilitados
+  - Mensajes informativos mostrados
+  - Solo consulta disponible
+
+#### Funciones Protegidas
+- ✅ Crear Mesas Virtuales
+- ✅ Generar Personal Automático
+- ✅ Reasignar Estudiantes
+- ✅ Limpiar Personal
+- ✅ Agregar Personal Manual
+- ✅ Eliminar Personal
+
+#### Experiencia de Usuario
+- **Botones deshabilitados**: Color gris con tooltips explicativos
+- **Mensajes informativos**: "Esta elección ya finalizó. Los datos son de solo lectura"
+- **Funcionalidad preservada**: Botón "Ver" para consultar datos
+- **Auditoría completa**: Intentos no autorizados registrados en logs
+
+### Beneficios de la Protección
+1. **Integridad de datos históricos**
+2. **Prevención de modificaciones accidentales**
+3. **Cumplimiento de normativas electorales**
+4. **Auditoría completa de intentos de modificación**
+5. **Interfaz clara y comprensible**
+
 ## 🔄 Mantenimiento
 
 ### Tareas de Mantenimiento Recomendadas

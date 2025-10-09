@@ -19,6 +19,8 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Temas de colores personalizados -->
+    <link rel="stylesheet" href="/Login/assets/css/header-themes.css">
     <style>
         body {
             background-color: #f8f9fa;
@@ -52,14 +54,26 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
             margin-bottom: 2rem;
         }
         .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
             border-radius: 10px 10px 0 0 !important;
             padding: 1rem 1.5rem;
+            border-bottom: 3px solid #3498db;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .card-header h5 {
+            margin-bottom: 0;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .card-header i {
+            margin-right: 8px;
+            opacity: 0.9;
         }
         .mesa-card {
             transition: transform 0.2s;
-            cursor: pointer;
         }
         .mesa-card:hover {
             transform: translateY(-2px);
@@ -71,7 +85,7 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
             background-color: #dc3545;
         }
         .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
             border-radius: 15px;
         }
@@ -79,12 +93,33 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
             border-left: 4px solid;
             margin-bottom: 1rem;
         }
-        .nivel-preescolar { border-left-color: #ff6b6b; }
-        .nivel-primaria { border-left-color: #4ecdc4; }
-        .nivel-bachillerato { border-left-color: #45b7d1; }
+        .nivel-preescolar { border-left-color: #e74c3c; }
+        .nivel-primaria { border-left-color: #27ae60; }
+        .nivel-bachillerato { border-left-color: #3498db; }
+        
+        /* Alternativas de colores para encabezados */
+        .header-institucional {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+            border-bottom: 3px solid #3498db !important;
+        }
+        
+        .header-gubernamental {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+            border-bottom: 3px solid #f39c12 !important;
+        }
+        
+        .header-educativo {
+            background: linear-gradient(135deg, #16a085 0%, #27ae60 100%) !important;
+            border-bottom: 3px solid #f1c40f !important;
+        }
+        
+        .header-profesional {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%) !important;
+            border-bottom: 3px solid #e74c3c !important;
+        }
     </style>
 </head>
-<body>
+<body class="theme-institucional">
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
@@ -151,22 +186,49 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
                             </div>
                             <div class="col-md-4">
                                 <?php if ($id_eleccion): ?>
-                                    <div class="btn-group me-2" role="group">
-                                        <button class="btn btn-primary" onclick="crearMesas(<?php echo $id_eleccion; ?>)">
-                                            <i class="fas fa-plus"></i> Crear Mesas
-                                        </button>
-                                        <button class="btn btn-success" onclick="generarPersonal(<?php echo $id_eleccion; ?>)">
-                                            <i class="fas fa-users"></i> Generar Personal
-                                        </button>
-                                    </div>
-                                    <div class="btn-group" role="group">
-                                        <button class="btn btn-secondary" onclick="reasignarEstudiantes(<?php echo $id_eleccion; ?>)">
-                                            <i class="fas fa-sync"></i> Reasignar
-                                        </button>
-                                        <button class="btn btn-outline-danger" onclick="limpiarPersonal(<?php echo $id_eleccion; ?>)">
-                                            <i class="fas fa-trash"></i> Limpiar Personal
-                                        </button>
-                                    </div>
+                                    <?php if ($eleccionModificable): ?>
+                                        <!-- Botones habilitados para elecciones activas/futuras -->
+                                        <div class="btn-group me-2" role="group">
+                                            <button class="btn btn-primary" onclick="crearMesas(<?php echo $id_eleccion; ?>)">
+                                                <i class="fas fa-plus"></i> Crear Mesas
+                                            </button>
+                                            <button class="btn btn-success" onclick="generarPersonal(<?php echo $id_eleccion; ?>)">
+                                                <i class="fas fa-users"></i> Generar Personal
+                                            </button>
+                                        </div>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-secondary" onclick="reasignarEstudiantes(<?php echo $id_eleccion; ?>)">
+                                                <i class="fas fa-sync"></i> Reasignar
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="limpiarPersonal(<?php echo $id_eleccion; ?>)">
+                                                <i class="fas fa-trash"></i> Limpiar Personal
+                                            </button>
+                                        </div>
+                                    <?php else: ?>
+                                        <!-- Botones deshabilitados para elecciones pasadas -->
+                                        <div class="btn-group me-2" role="group">
+                                            <button class="btn btn-secondary" disabled title="Esta elección ya finalizó y no puede modificarse">
+                                                <i class="fas fa-plus"></i> Crear Mesas
+                                            </button>
+                                            <button class="btn btn-secondary" disabled title="Esta elección ya finalizó y no puede modificarse">
+                                                <i class="fas fa-users"></i> Generar Personal
+                                            </button>
+                                        </div>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-secondary" disabled title="Esta elección ya finalizó y no puede modificarse">
+                                                <i class="fas fa-sync"></i> Reasignar
+                                            </button>
+                                            <button class="btn btn-secondary" disabled title="Esta elección ya finalizó y no puede modificarse">
+                                                <i class="fas fa-trash"></i> Limpiar Personal
+                                            </button>
+                                        </div>
+                                        <div class="mt-2">
+                                            <small class="text-warning">
+                                                <i class="fas fa-info-circle"></i> 
+                                                Esta elección ya finalizó. Los datos son de solo lectura.
+                                            </small>
+                                        </div>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -243,7 +305,7 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
                                 <div class="row">
                                     <?php foreach ($estadisticasMesas as $mesa): ?>
                                         <div class="col-md-6 col-lg-4 mb-3">
-                                            <div class="card mesa-card h-100" onclick="verMesa(<?php echo $mesa['id_mesa']; ?>)">
+                                            <div class="card mesa-card h-100">
                                                 <div class="card-body">
                                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                                         <h6 class="card-title mb-0"><?php echo $mesa['nombre_mesa']; ?></h6>
@@ -280,9 +342,21 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
                                                 </div>
                                                 <div class="card-footer bg-transparent">
                                                     <div class="btn-group w-100" role="group">
-                                                        <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); gestionarPersonal(<?php echo $mesa['id_mesa']; ?>)">
-                                                            <i class="fas fa-users"></i> Personal
-                                                        </button>
+                                                        <?php if ($eleccionModificable): ?>
+                                                            <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation(); asignarEstudiantes(<?php echo $mesa['id_mesa']; ?>)">
+                                                                <i class="fas fa-user-graduate"></i> Estudiantes
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); gestionarPersonal(<?php echo $mesa['id_mesa']; ?>)">
+                                                                <i class="fas fa-users"></i> Personal
+                                                            </button>
+                                                        <?php else: ?>
+                                                            <button class="btn btn-sm btn-secondary" disabled title="Esta elección ya finalizó y no puede modificarse">
+                                                                <i class="fas fa-user-graduate"></i> Estudiantes
+                                                            </button>
+                                                            <button class="btn btn-sm btn-secondary" disabled title="Esta elección ya finalizó y no puede modificarse">
+                                                                <i class="fas fa-users"></i> Personal
+                                                            </button>
+                                                        <?php endif; ?>
                                                         <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation(); verDetalles(<?php echo $mesa['id_mesa']; ?>)">
                                                             <i class="fas fa-eye"></i> Ver
                                                         </button>
@@ -299,10 +373,23 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
                             <div class="card-body text-center py-5">
                                 <i class="fas fa-table fa-3x text-muted mb-3"></i>
                                 <h5>No hay mesas virtuales creadas</h5>
-                                <p class="text-muted">Crea las mesas virtuales para esta elección para comenzar.</p>
-                                <button class="btn btn-primary" onclick="crearMesas(<?php echo $id_eleccion; ?>)">
-                                    <i class="fas fa-plus"></i> Crear Mesas Virtuales
-                                </button>
+                                <?php if ($eleccionModificable): ?>
+                                    <p class="text-muted">Crea las mesas virtuales para esta elección para comenzar.</p>
+                                    <button class="btn btn-primary" onclick="crearMesas(<?php echo $id_eleccion; ?>)">
+                                        <i class="fas fa-plus"></i> Crear Mesas Virtuales
+                                    </button>
+                                <?php else: ?>
+                                    <p class="text-muted">Esta elección ya finalizó. No se pueden crear mesas virtuales.</p>
+                                    <button class="btn btn-secondary" disabled title="Esta elección ya finalizó y no puede modificarse">
+                                        <i class="fas fa-plus"></i> Crear Mesas Virtuales
+                                    </button>
+                                    <div class="mt-3">
+                                        <small class="text-warning">
+                                            <i class="fas fa-info-circle"></i> 
+                                            Los datos de esta elección son de solo lectura.
+                                        </small>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endif; ?>
@@ -401,6 +488,12 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
             }
         }
 
+        function asignarEstudiantes(idMesa) {
+            console.log('Función asignarEstudiantes llamada con ID:', idMesa);
+            console.log('Redirigiendo a:', `/Login/admin/asignar-estudiantes?mesa=${idMesa}`);
+            window.location.href = `/Login/admin/asignar-estudiantes?mesa=${idMesa}`;
+        }
+
         function gestionarPersonal(idMesa) {
             window.location.href = `/Login/admin/gestionar-personal?mesa=${idMesa}`;
         }
@@ -413,6 +506,30 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
             verDetalles(idMesa);
         }
 
+        // Función para cambiar tema de colores
+        function cambiarTema(tema) {
+            // Remover todas las clases de tema existentes
+            document.body.classList.remove(
+                'theme-institucional', 'theme-gubernamental', 'theme-educativo', 
+                'theme-profesional', 'theme-democratico', 'theme-elegante', 
+                'theme-civico', 'theme-moderno'
+            );
+            
+            // Agregar la nueva clase de tema
+            document.body.classList.add('theme-' + tema);
+            
+            // Guardar preferencia en localStorage
+            localStorage.setItem('tema-headers', tema);
+        }
+
+        // Cargar tema guardado al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const temaGuardado = localStorage.getItem('tema-headers');
+            if (temaGuardado) {
+                cambiarTema(temaGuardado);
+            }
+        });
+
         // Auto-refresh cada 30 segundos si hay elección seleccionada
         <?php if ($id_eleccion): ?>
         setInterval(function() {
@@ -423,9 +540,44 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
         }, 30000);
         <?php endif; ?>
     </script>
-                </div>
-            </div>
+
+    <!-- Selector de Temas (Solo visible para administradores) -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Cambiar tema de colores">
+                <i class="fas fa-palette"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><h6 class="dropdown-header">Temas de Colores</h6></li>
+                <li><a class="dropdown-item" href="#" onclick="cambiarTema('institucional')">
+                    <i class="fas fa-circle text-secondary me-2"></i>Institucional (Actual)
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="cambiarTema('gubernamental')">
+                    <i class="fas fa-circle text-primary me-2"></i>Gubernamental
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="cambiarTema('educativo')">
+                    <i class="fas fa-circle text-success me-2"></i>Educativo
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="cambiarTema('profesional')">
+                    <i class="fas fa-circle text-dark me-2"></i>Profesional
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="cambiarTema('democratico')">
+                    <i class="fas fa-circle text-info me-2"></i>Democrático
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="cambiarTema('elegante')">
+                    <i class="fas fa-circle text-muted me-2"></i>Elegante
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="cambiarTema('civico')">
+                    <i class="fas fa-circle" style="color: #2e7d32;" me-2></i>Cívico
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="cambiarTema('moderno')">
+                    <i class="fas fa-circle" style="color: #5e35b1;" me-2></i>Moderno
+                </a></li>
+            </ul>
         </div>
     </div>
+    
+    <!-- JavaScript para subida de imágenes de perfil -->
+    <script src="/Login/assets/js/profile-image-upload.js"></script>
 </body>
 </html>

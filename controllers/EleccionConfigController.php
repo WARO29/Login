@@ -268,14 +268,41 @@ class EleccionConfigController {
             exit;
         }
         
-        // Eliminar la elección
+        // Obtener información sobre los datos que se van a eliminar
+        $datosRelacionados = $this->eleccionModel->obtenerDatosRelacionados($id);
+        
+        // Eliminar la elección y todos sus datos relacionados
         $resultado = $this->eleccionModel->eliminarConfiguracion($id);
         
         if ($resultado) {
-            $_SESSION['mensaje'] = 'Elección eliminada correctamente.';
+            $mensaje = 'Elección eliminada correctamente.';
+            
+            // Agregar información sobre los datos eliminados
+            $detalles = [];
+            if ($datosRelacionados['votos_estudiantes'] > 0) {
+                $detalles[] = $datosRelacionados['votos_estudiantes'] . ' votos de estudiantes';
+            }
+            if ($datosRelacionados['votos_docentes'] > 0) {
+                $detalles[] = $datosRelacionados['votos_docentes'] . ' votos de docentes';
+            }
+            if ($datosRelacionados['votos_administrativos'] > 0) {
+                $detalles[] = $datosRelacionados['votos_administrativos'] . ' votos administrativos';
+            }
+            if ($datosRelacionados['mesas_virtuales'] > 0) {
+                $detalles[] = $datosRelacionados['mesas_virtuales'] . ' mesas virtuales';
+            }
+            if ($datosRelacionados['logs_acceso'] > 0) {
+                $detalles[] = $datosRelacionados['logs_acceso'] . ' registros de acceso';
+            }
+            
+            if (!empty($detalles)) {
+                $mensaje .= ' También se eliminaron: ' . implode(', ', $detalles) . '.';
+            }
+            
+            $_SESSION['mensaje'] = $mensaje;
             $_SESSION['tipo'] = 'success';
         } else {
-            $_SESSION['mensaje'] = 'Error al eliminar la elección.';
+            $_SESSION['mensaje'] = 'Error al eliminar la elección. Algunos datos relacionados podrían no haberse eliminado correctamente.';
             $_SESSION['tipo'] = 'error';
         }
         
@@ -327,8 +354,8 @@ class EleccionConfigController {
             exit;
         }
         
-        // Activar la elección
-        $resultado = $this->eleccionModel->cambiarEstadoEleccion($id, 'activa');
+        // Activar la elección y ajustar fecha de inicio si es necesario
+        $resultado = $this->eleccionModel->activarEleccionManual($id);
         
         if ($resultado) {
             $_SESSION['mensaje'] = 'Elección activada correctamente.';

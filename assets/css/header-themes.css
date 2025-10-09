@@ -1,0 +1,125 @@
+/* ========================================
+   TEMAS DE COLORES PARA ENCABEZADOS
+   Sistema de Votación Estudiantil
+   ======================================== */
+
+/* TEMA ACTUAL - INSTITUCIONAL (Azul Gris Oscuro) */
+.theme-institucional .card-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+    border-bottom: 3px solid #3498db !important;
+}
+
+.theme-institucional .stats-card {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+}
+
+/* TEMA GUBERNAMENTAL (Azul Institucional) */
+.theme-gubernamental .card-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+    border-bottom: 3px solid #f39c12 !important;
+}
+
+.theme-gubernamental .stats-card {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+}
+
+/* TEMA EDUCATIVO (Verde Esmeralda) */
+.theme-educativo .card-header {
+    background: linear-gradient(135deg, #16a085 0%, #27ae60 100%) !important;
+    border-bottom: 3px solid #f1c40f !important;
+}
+
+.theme-educativo .stats-card {
+    background: linear-gradient(135deg, #16a085 0%, #27ae60 100%) !important;
+}
+
+/* TEMA PROFESIONAL (Gris Carbón) */
+.theme-profesional .card-header {
+    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%) !important;
+    border-bottom: 3px solid #e74c3c !important;
+}
+
+.theme-profesional .stats-card {
+    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%) !important;
+}
+
+/* TEMA DEMOCRÁTICO (Azul Patriótico) */
+.theme-democratico .card-header {
+    background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%) !important;
+    border-bottom: 3px solid #ffd54f !important;
+}
+
+.theme-democratico .stats-card {
+    background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%) !important;
+}
+
+/* TEMA ELEGANTE (Negro Elegante) */
+.theme-elegante .card-header {
+    background: linear-gradient(135deg, #212121 0%, #424242 100%) !important;
+    border-bottom: 3px solid #00bcd4 !important;
+}
+
+.theme-elegante .stats-card {
+    background: linear-gradient(135deg, #212121 0%, #424242 100%) !important;
+}
+
+/* TEMA CÍVICO (Verde Cívico) */
+.theme-civico .card-header {
+    background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%) !important;
+    border-bottom: 3px solid #ffeb3b !important;
+}
+
+.theme-civico .stats-card {
+    background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%) !important;
+}
+
+/* TEMA MODERNO (Púrpura Moderno) */
+.theme-moderno .card-header {
+    background: linear-gradient(135deg, #5e35b1 0%, #7e57c2 100%) !important;
+    border-bottom: 3px solid #ff7043 !important;
+}
+
+.theme-moderno .stats-card {
+    background: linear-gradient(135deg, #5e35b1 0%, #7e57c2 100%) !important;
+}
+
+/* ========================================
+   ESTILOS COMUNES PARA TODOS LOS TEMAS
+   ======================================== */
+
+.card-header {
+    color: white !important;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 1rem 1.5rem !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.card-header h5 {
+    margin-bottom: 0 !important;
+    font-weight: 600 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+}
+
+.card-header i {
+    margin-right: 8px !important;
+    opacity: 0.9 !important;
+}
+
+.stats-card {
+    color: white !important;
+    border-radius: 15px !important;
+}
+
+/* ========================================
+   INSTRUCCIONES DE USO:
+   
+   Para cambiar el tema, agrega una de estas clases al <body>:
+   - theme-institucional (actual)
+   - theme-gubernamental
+   - theme-educativo
+   - theme-profesional
+   - theme-democratico
+   - theme-elegante
+   - theme-civico
+   - theme-moderno
+   ======================================== */

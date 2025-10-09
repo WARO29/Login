@@ -25,9 +25,9 @@ class LogsController {
 
         // Obtener filtros
         $filtros = [
-            'tipo' => filter_input(INPUT_GET, 'tipo', FILTER_SANITIZE_STRING),
-            'fecha_desde' => filter_input(INPUT_GET, 'fecha_desde', FILTER_SANITIZE_STRING),
-            'fecha_hasta' => filter_input(INPUT_GET, 'fecha_hasta', FILTER_SANITIZE_STRING),
+            'tipo' => filter_input(INPUT_GET, 'tipo', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+            'fecha_desde' => filter_input(INPUT_GET, 'fecha_desde', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+            'fecha_hasta' => filter_input(INPUT_GET, 'fecha_hasta', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
             'limite' => filter_input(INPUT_GET, 'limite', FILTER_VALIDATE_INT) ?: 50
         ];
 

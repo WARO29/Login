@@ -45,7 +45,7 @@ class ProcesarVotosController {
 
         // Obtener y validar los datos del formulario
         $id_candidato = filter_input(INPUT_POST, 'id_candidato', FILTER_VALIDATE_INT);
-        $tipo_voto = filter_input(INPUT_POST, 'tipo_candidato', FILTER_SANITIZE_STRING);
+        $tipo_voto = filter_input(INPUT_POST, 'tipo_candidato', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $id_estudiante = $_SESSION['estudiante_id'];
 
         // Verificar que los datos sean válidos
@@ -141,7 +141,7 @@ class ProcesarVotosController {
             }
             
             // Obtener y validar el tipo de voto
-            $tipo_voto = filter_input(INPUT_POST, 'tipo_voto', FILTER_SANITIZE_STRING);
+            $tipo_voto = filter_input(INPUT_POST, 'tipo_voto', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $id_estudiante = $_SESSION['estudiante_id'];
             
             // Log de depuración

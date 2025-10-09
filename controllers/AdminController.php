@@ -19,8 +19,8 @@ class AdminController {
 
     public function autenticar() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $usuario = filter_input(INPUT_POST, 'usuario', FILTER_SANITIZE_STRING);
-            $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
+            $usuario = filter_input(INPUT_POST, 'usuario', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             
             if (empty($usuario) || empty($password)) {
                 SessionManager::iniciarSesion();

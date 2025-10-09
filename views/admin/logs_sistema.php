@@ -183,23 +183,23 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
                                             <div class="flex-grow-1">
                                                 <div class="d-flex align-items-center mb-1">
                                                     <span class="badge badge-tipo bg-secondary me-2"><?= strtoupper($log['tipo']) ?></span>
-                                                    <strong><?= htmlspecialchars($log['descripcion']) ?></strong>
+                                                    <strong><?= htmlspecialchars($log['descripcion'] ?? '') ?></strong>
                                                 </div>
                                                 <div class="log-timestamp">
                                                     <i class="fas fa-clock me-1"></i>
                                                     <?= date('d/m/Y H:i:s', strtotime($log['fecha_hora'])) ?>
                                                     <?php if ($log['admin_usuario']): ?>
-                                                        | <i class="fas fa-user me-1"></i><?= htmlspecialchars($log['admin_usuario']) ?>
+                                                        | <i class="fas fa-user me-1"></i><?= htmlspecialchars($log['admin_usuario'] ?? '') ?>
                                                     <?php endif; ?>
                                                     <?php if ($log['ip_address']): ?>
-                                                        | <i class="fas fa-globe me-1"></i><?= $log['ip_address'] ?>
+                                                        | <i class="fas fa-globe me-1"></i><?= htmlspecialchars($log['ip_address'] ?? 'N/A') ?>
                                                     <?php endif; ?>
                                                 </div>
                                                 <?php if ($log['datos_adicionales']): ?>
                                                     <div class="mt-2">
                                                         <small class="text-muted">
                                                             <i class="fas fa-info-circle me-1"></i>
-                                                            <code><?= htmlspecialchars($log['datos_adicionales']) ?></code>
+                                                            <code><?= htmlspecialchars($log['datos_adicionales'] ?? '') ?></code>
                                                         </small>
                                                     </div>
                                                 <?php endif; ?>

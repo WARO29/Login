@@ -68,11 +68,11 @@ class AdminDocentesController {
         // Verificar si es una solicitud POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtener y validar los datos del formulario
-            $codigo_docente = filter_input(INPUT_POST, 'codigo_docente', FILTER_SANITIZE_STRING);
-            $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_STRING);
+            $codigo_docente = filter_input(INPUT_POST, 'codigo_docente', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $correo = filter_input(INPUT_POST, 'correo', FILTER_SANITIZE_EMAIL);
-            $area = filter_input(INPUT_POST, 'area', FILTER_SANITIZE_STRING);
-            $estado = isset($_POST['estado']) ? filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING) : 'activo'; // 'activo' por defecto
+            $area = filter_input(INPUT_POST, 'area', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $estado = isset($_POST['estado']) ? filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : 'activo'; // 'activo' por defecto
 
             // Validar que todos los campos requeridos estén presentes
             if (empty($codigo_docente) || empty($nombre) || empty($correo) || empty($area)) {
@@ -137,11 +137,11 @@ class AdminDocentesController {
         // Verificar si es una solicitud POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtener y validar los datos del formulario
-            $codigo_docente = filter_input(INPUT_POST, 'codigo_docente', FILTER_SANITIZE_STRING);
-            $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_STRING);
+            $codigo_docente = filter_input(INPUT_POST, 'codigo_docente', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $correo = filter_input(INPUT_POST, 'correo', FILTER_SANITIZE_EMAIL);
-            $area = filter_input(INPUT_POST, 'area', FILTER_SANITIZE_STRING);
-            $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
+            $area = filter_input(INPUT_POST, 'area', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             // Validar que todos los campos requeridos estén presentes
             if (empty($codigo_docente) || empty($nombre) || empty($correo) || empty($area) || empty($estado)) {
@@ -205,7 +205,7 @@ class AdminDocentesController {
         // Verificar si es una solicitud POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtener el código del docente a eliminar
-            $codigo_docente = filter_input(INPUT_POST, 'codigo_docente', FILTER_SANITIZE_STRING);
+            $codigo_docente = filter_input(INPUT_POST, 'codigo_docente', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             if (empty($codigo_docente)) {
                 $_SESSION['mensaje'] = "Código de docente no válido.";

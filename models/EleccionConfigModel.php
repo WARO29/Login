@@ -2,6 +2,7 @@
 namespace models;
 
 use config\Database;
+use Exception;
 
 class EleccionConfigModel {
     private $db;
@@ -174,18 +175,125 @@ class EleccionConfigModel {
     }
     
     /**
-     * Elimina una configuración de elección
+     * Elimina una configuración de elección y todos sus datos relacionados
      * @param int $id ID de la configuración a eliminar
      * @return bool Éxito de la operación
      */
     public function eliminarConfiguracion($id) {
-        $sql = "DELETE FROM configuracion_elecciones WHERE id = ?";
-        $stmt = $this->db->prepare($sql);
-        if ($stmt) {
-            $stmt->bind_param('i', $id);
-            return $stmt->execute();
+        try {
+            // Iniciar transacción para asegurar integridad
+            $this->db->autocommit(false);
+            $this->db->begin_transaction();
+            
+            // 1. Eliminar logs de acceso a elecciones
+            $sql = "DELETE FROM logs_acceso_elecciones WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+            }
+            
+            // 2. Eliminar votos de estudiantes
+            $sql = "DELETE FROM votos WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+            }
+            
+            // 3. Eliminar votos de docentes
+            $sql = "DELETE FROM votos_docentes WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+            }
+            
+            // 4. Eliminar votos administrativos (si existe la tabla)
+            $sql = "DELETE FROM votos_administrativos WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+            }
+            
+            // 5. Eliminar asignaciones de estudiantes a mesas
+            $sql = "DELETE em FROM estudiantes_mesas em 
+                    INNER JOIN mesas_virtuales mv ON em.id_mesa = mv.id_mesa 
+                    WHERE mv.id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+            }
+            
+            // 6. Eliminar personal de mesas
+            $sql = "DELETE pm FROM personal_mesa pm 
+                    INNER JOIN mesas_virtuales mv ON pm.id_mesa = mv.id_mesa 
+                    WHERE mv.id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+            }
+            
+            // 7. Eliminar mesas virtuales (esto debería ser automático por CASCADE)
+            $sql = "DELETE FROM mesas_virtuales WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+            }
+            
+            // 8. Eliminar logs del sistema relacionados con esta elección
+            $sql = "DELETE FROM logs_sistema WHERE datos_adicionales LIKE ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $patron = '%"id_eleccion":' . $id . '%';
+                $stmt->bind_param('s', $patron);
+                $stmt->execute();
+            }
+            
+            // 9. Eliminar histórico de elecciones
+            $sql = "DELETE FROM historico_elecciones WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+            }
+            
+            // 10. Finalmente, eliminar la configuración de elección
+            $sql = "DELETE FROM configuracion_elecciones WHERE id = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $resultado = $stmt->execute();
+                
+                if ($resultado) {
+                    // Confirmar transacción
+                    $this->db->commit();
+                    $this->db->autocommit(true);
+                    return true;
+                } else {
+                    // Revertir transacción
+                    $this->db->rollback();
+                    $this->db->autocommit(true);
+                    return false;
+                }
+            }
+            
+            // Si llegamos aquí, algo salió mal
+            $this->db->rollback();
+            $this->db->autocommit(true);
+            return false;
+            
+        } catch (Exception $e) {
+            // En caso de error, revertir transacción
+            $this->db->rollback();
+            $this->db->autocommit(true);
+            error_log("Error al eliminar elección: " . $e->getMessage());
+            return false;
         }
-        return false;
     }
     
     /**
@@ -535,5 +643,141 @@ class EleccionConfigModel {
         }
         
         return $resultado;
+    }
+
+    /**
+     * Obtiene información sobre los datos relacionados con una elección
+     * @param int $id ID de la elección
+     * @return array Contadores de datos relacionados
+     */
+    public function obtenerDatosRelacionados($id) {
+        $datos = [
+            'votos_estudiantes' => 0,
+            'votos_docentes' => 0,
+            'votos_administrativos' => 0,
+            'mesas_virtuales' => 0,
+            'logs_acceso' => 0,
+            'historico' => 0
+        ];
+
+        try {
+            // Contar votos de estudiantes
+            $sql = "SELECT COUNT(*) as total FROM votos WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($row = $result->fetch_assoc()) {
+                    $datos['votos_estudiantes'] = $row['total'];
+                }
+            }
+
+            // Contar votos de docentes
+            $sql = "SELECT COUNT(*) as total FROM votos_docentes WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($row = $result->fetch_assoc()) {
+                    $datos['votos_docentes'] = $row['total'];
+                }
+            }
+
+            // Contar votos administrativos
+            $sql = "SELECT COUNT(*) as total FROM votos_administrativos WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($row = $result->fetch_assoc()) {
+                    $datos['votos_administrativos'] = $row['total'];
+                }
+            }
+
+            // Contar mesas virtuales
+            $sql = "SELECT COUNT(*) as total FROM mesas_virtuales WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($row = $result->fetch_assoc()) {
+                    $datos['mesas_virtuales'] = $row['total'];
+                }
+            }
+
+            // Contar logs de acceso
+            $sql = "SELECT COUNT(*) as total FROM logs_acceso_elecciones WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($row = $result->fetch_assoc()) {
+                    $datos['logs_acceso'] = $row['total'];
+                }
+            }
+
+            // Contar histórico
+            $sql = "SELECT COUNT(*) as total FROM historico_elecciones WHERE id_eleccion = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($row = $result->fetch_assoc()) {
+                    $datos['historico'] = $row['total'];
+                }
+            }
+
+        } catch (Exception $e) {
+            error_log("Error al obtener datos relacionados: " . $e->getMessage());
+        }
+
+        return $datos;
+    }
+
+    /**
+     * Activa una elección manualmente y ajusta la fecha de inicio si es necesario
+     * @param int $id ID de la elección
+     * @return bool True si se activó correctamente
+     */
+    public function activarEleccionManual($id) {
+        try {
+            // Obtener datos de la elección
+            $eleccion = $this->getEleccionPorId($id);
+            if (!$eleccion) {
+                return false;
+            }
+
+            // Si la fecha de inicio es futura, ajustarla al momento actual
+            $fechaActual = date('Y-m-d H:i:s');
+            $fechaInicio = $eleccion['fecha_inicio'];
+            
+            if ($fechaInicio > $fechaActual) {
+                // Ajustar fecha de inicio al momento actual
+                $sql = "UPDATE configuracion_elecciones 
+                        SET estado = 'activa', fecha_inicio = NOW() 
+                        WHERE id = ?";
+            } else {
+                // Solo cambiar el estado
+                $sql = "UPDATE configuracion_elecciones 
+                        SET estado = 'activa' 
+                        WHERE id = ?";
+            }
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->bind_param("i", $id);
+            $resultado = $stmt->execute();
+            
+            return $resultado;
+            
+        } catch (Exception $e) {
+            error_log("Error al activar elección manual: " . $e->getMessage());
+            return false;
+        }
     }
 }

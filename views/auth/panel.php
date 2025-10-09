@@ -136,6 +136,39 @@ $admin_nombre = $_SESSION['admin_nombre'] ?? '';
                         ?>
                     <?php endif; ?>
                     
+                    <!-- Botón de Archivado Automático -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="card border-warning">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="card-title mb-1">
+                                                <i class="fas fa-archive text-warning"></i> 
+                                                Archivado de Elecciones Finalizadas
+                                            </h6>
+                                            <p class="card-text small text-muted mb-0">
+                                                Archivar automáticamente elecciones cerradas y limpiar estadísticas del dashboard
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <form method="POST" action="/Login/admin/archivar-elecciones" style="display: inline;">
+                                                <button type="submit" class="btn btn-warning btn-sm" 
+                                                        onclick="return confirm('¿Está seguro de archivar las elecciones finalizadas? Esta acción limpiará las estadísticas del dashboard.')">
+                                                    <i class="fas fa-archive"></i> Archivar Elecciones
+                                                </button>
+                                            </form>
+                                            <button type="button" class="btn btn-outline-info btn-sm ms-2" 
+                                                    onclick="verificarEstadoElecciones()" id="btnVerificar">
+                                                <i class="fas fa-sync"></i> Verificar Estado
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Stats Cards -->
                     <div class="row mb-4">
                         <div class="col-md-2">
@@ -427,44 +460,12 @@ $admin_nombre = $_SESSION['admin_nombre'] ?? '';
         </div>
     </div>
     
-    <!-- Modal para cambiar imagen de perfil -->
-    <div class="modal fade" id="profileImageModal" tabindex="-1" aria-labelledby="profileImageModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="profileImageModalLabel">Cambiar imagen de perfil</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="profileImageForm" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="profile_image" class="form-label">Selecciona una nueva imagen</label>
-                            <input class="form-control" type="file" id="profile_image" name="profile_image" accept="image/*" required>
-                            <div class="form-text">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB.</div>
-                        </div>
-                        <div id="imagePreview" class="text-center my-3" style="display: none;">
-                            <img src="" alt="Vista previa" class="img-fluid rounded" style="max-height: 200px;">
-                        </div>
-                        <div class="alert alert-danger" id="uploadError" style="display: none;"></div>
-                        <div class="alert alert-success" id="uploadSuccess" style="display: none;"></div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="uploadImageBtn">Subir imagen</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/Login/assets/js/profile-image-upload.js"></script>
     <script>
         // Inicialización de la página
         $(document).ready(function() {
-            // Configurar la funcionalidad de carga de imagen de perfil
-            setupProfileImageUpload();
-            
             // Cerrar alertas automáticamente después de 5 segundos
             setTimeout(function() {
                 $('.alert.auto-dismiss').fadeOut('slow', function() {
@@ -479,103 +480,7 @@ $admin_nombre = $_SESSION['admin_nombre'] ?? '';
             cargarVotosAdministrativos();
         });
 
-        // Manejo de la subida de imágenes de perfil
-        function setupProfileImageUpload() {
-            // Vista previa de la imagen seleccionada
-            $('#profile_image').change(function() {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#imagePreview').show();
-                        $('#imagePreview img').attr('src', e.target.result);
-                    }
-                    reader.readAsDataURL(file);
-                } else {
-                    $('#imagePreview').hide();
-                }
-            });
-            
-            // Subir la imagen al servidor
-            $('#uploadImageBtn').click(function() {
-                const fileInput = $('#profile_image')[0];
-                if (fileInput.files.length === 0) {
-                    $('#uploadError').text('Por favor, selecciona una imagen').show();
-                    return;
-                }
-                
-                const formData = new FormData();
-                formData.append('profile_image', fileInput.files[0]);
-                
-                // Mostrar indicador de carga
-                $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Subiendo...');
-                $(this).prop('disabled', true);
-                $('#uploadError').hide();
-                $('#uploadSuccess').hide();
-                
-                $.ajax({
-                    url: '/Login/upload_profile_image_simple.php',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            // Actualizar la imagen de perfil en TODAS las instancias de la página
-                            const newImageUrl = response.image_url + '?v=' + new Date().getTime();
-                            
-                            // Actualizar todas las imágenes de perfil del administrador (sidebar, header, etc.)
-                            $('img[id*="profile-image"], img[alt*="perfil"], img[alt*="Imagen de perfil"]').each(function() {
-                                $(this).attr('src', newImageUrl);
-                            });
-                            
-                            // Si ya hay una imagen específica en el sidebar, actualizarla
-                            if ($('#profile-image').length) {
-                                $('#profile-image').attr('src', newImageUrl);
-                            }
-                            // Si hay un ícono, reemplazarlo por la imagen
-                            else if ($('#profile-icon').length) {
-                                const imgHtml = '<img id="profile-image" src="' + newImageUrl + '" alt="Imagen de perfil" ' +
-                                               'class="rounded-circle img-fluid mb-2" style="width: 80px; height: 80px; object-fit: cover;">';
-                                $('#profile-icon').replaceWith(imgHtml);
-                            }
-                            
-                            // Actualizar cualquier imagen de administrador en el header o navbar
-                            $('.navbar img, .header img, .admin-profile img, .dropdown img').each(function() {
-                                if ($(this).attr('alt') && ($(this).attr('alt').includes('admin') || $(this).attr('alt').includes('perfil') || $(this).hasClass('profile-img-sm'))) {
-                                    $(this).attr('src', newImageUrl);
-                                }
-                            });
-                            
-                            // Actualizar específicamente las imágenes pequeñas del header
-                            $('.profile-img-sm').attr('src', newImageUrl);
-                            
-                            // Mostrar mensaje de éxito
-                            $('#uploadSuccess').text(response.message).show();
-                            
-                            // Cerrar el modal después de 2 segundos
-                            setTimeout(function() {
-                                $('#profileImageModal').modal('hide');
-                                // Limpiar el formulario
-                                $('#profileImageForm')[0].reset();
-                                $('#imagePreview').hide();
-                                $('#uploadSuccess').hide();
-                            }, 2000);
-                        } else {
-                            $('#uploadError').text(response.message).show();
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        $('#uploadError').text('Error al subir la imagen: ' + error).show();
-                    },
-                    complete: function() {
-                        $('#uploadImageBtn').html('Subir imagen');
-                        $('#uploadImageBtn').prop('disabled', false);
-                    }
-                });
-            });
-        }
+        // La funcionalidad de subida de imágenes se maneja en el archivo externo profile-image-upload.js
 
         // Función para cargar las estadísticas generales
         function cargarEstadisticas() {
@@ -835,8 +740,58 @@ $admin_nombre = $_SESSION['admin_nombre'] ?? '';
                 }
             });
         }
+
+        // Función para verificar estado de elecciones
+        function verificarEstadoElecciones() {
+            const btn = document.getElementById('btnVerificar');
+            const originalText = btn.innerHTML;
+            
+            // Cambiar botón a estado de carga
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+            btn.disabled = true;
+            
+            fetch('/Login/api/verificar-estado-elecciones')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let mensaje = 'Verificación completada:\n\n';
+                        
+                        if (data.cierre && data.cierre.elecciones_cerradas > 0) {
+                            mensaje += `• ${data.cierre.elecciones_cerradas} elecciones cerradas automáticamente\n`;
+                        }
+                        
+                        if (data.archivado && data.archivado.elecciones_archivadas > 0) {
+                            mensaje += `• ${data.archivado.elecciones_archivadas} elecciones archivadas\n`;
+                            mensaje += '\nLas estadísticas del dashboard se han actualizado.';
+                        } else {
+                            mensaje += '• No hay elecciones pendientes de archivar';
+                        }
+                        
+                        alert(mensaje);
+                        
+                        // Recargar página si se archivaron elecciones
+                        if (data.archivado && data.archivado.elecciones_archivadas > 0) {
+                            location.reload();
+                        }
+                    } else {
+                        alert('Error al verificar estado: ' + data.mensaje);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión al verificar estado');
+                })
+                .finally(() => {
+                    // Restaurar botón
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+        }
     </script>
     <!-- Incluir el archivo JavaScript externo -->
     <script src="/Login/views/auth/js/panel-admin.js"></script>
+    
+    <!-- Incluir modal de imagen de perfil -->
+    <?php include dirname(__DIR__) . '/admin/includes/profile-image-modal.php'; ?>
 </body>
 </html>

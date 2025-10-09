@@ -33,39 +33,40 @@ function setupProfileImageUpload() {
         $('#uploadSuccess').hide();
         
         $.ajax({
-            url: '/Login/upload_profile_image_simple.php',
+            url: '/Login/views/admin/includes/upload_profile_image.php',
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
             dataType: 'json',
             success: function(response) {
+                console.log('✅ Respuesta del servidor:', response);
+                
                 if (response.success) {
                     // Actualizar la imagen de perfil en TODAS las instancias de la página
                     const newImageUrl = response.image_url + '?v=' + new Date().getTime();
+                    console.log('🖼️ Nueva URL de imagen:', newImageUrl);
                     
-                    // Actualizar todas las imágenes de perfil del administrador (sidebar, header, etc.)
-                    $('img[id*="profile-image"], img[alt*="perfil"], img[alt*="Imagen de perfil"]').each(function() {
-                        $(this).attr('src', newImageUrl);
-                    });
-                    
-                    // Si ya hay una imagen específica en el sidebar, actualizarla
-                    if ($('#profile-image').length) {
-                        $('#profile-image').attr('src', newImageUrl);
+                    // Actualizar imagen principal del sidebar
+                    if ($('#sidebar-profile-image').length) {
+                        $('#sidebar-profile-image').attr('src', newImageUrl);
+                        console.log('📝 Actualizada imagen principal del sidebar');
                     }
                     // Si hay un ícono, reemplazarlo por la imagen
                     else if ($('#profile-icon').length) {
-                        const imgHtml = '<img id="profile-image" src="' + newImageUrl + '" alt="Imagen de perfil" ' +
-                                       'class="rounded-circle img-fluid mb-2" style="width: 80px; height: 80px; object-fit: cover;">';
+                        const imgHtml = '<img id="sidebar-profile-image" src="' + newImageUrl + '" alt="Imagen de perfil" ' +
+                                       'class="rounded-circle img-fluid mb-2 profile-img-main" style="width: 80px; height: 80px; object-fit: cover;">';
                         $('#profile-icon').replaceWith(imgHtml);
+                        console.log('📝 Reemplazado ícono por imagen en sidebar');
                     }
                     
-                    // Actualizar cualquier imagen de administrador en el header o navbar
-                    $('.navbar img, .header img, .admin-profile img, .dropdown img').each(function() {
-                        if ($(this).attr('alt') && ($(this).attr('alt').includes('admin') || $(this).attr('alt').includes('perfil') || $(this).hasClass('profile-img-sm'))) {
-                            $(this).attr('src', newImageUrl);
-                        }
-                    });
+                    // Actualizar imagen pequeña en el header/navbar si existe
+                    $('.profile-img-sm').attr('src', newImageUrl);
+                    console.log('📝 Actualizada imagen pequeña del header');
+                    
+                    // Actualizar cualquier otra imagen de perfil en la página
+                    $('.profile-img-main').attr('src', newImageUrl);
+                    console.log('📝 Actualizadas todas las imágenes principales');
                     
                     // Actualizar específicamente las imágenes pequeñas del header
                     $('.profile-img-sm').attr('src', newImageUrl);
@@ -86,7 +87,30 @@ function setupProfileImageUpload() {
                 }
             },
             error: function(xhr, status, error) {
-                $('#uploadError').text('Error al subir la imagen: ' + error).show();
+                console.log('Error AJAX:', {xhr, status, error});
+                console.log('Response Text:', xhr.responseText);
+                
+                let errorMessage = 'Error al subir la imagen: ' + error;
+                
+                // Intentar parsear la respuesta para obtener más detalles
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.message) {
+                        errorMessage = response.message;
+                    }
+                    if (response.debug) {
+                        console.log('Debug info:', response.debug);
+                    }
+                } catch (e) {
+                    // Si no es JSON válido, mostrar el texto crudo (truncado)
+                    if (xhr.responseText.length > 200) {
+                        errorMessage += '\nRespuesta: ' + xhr.responseText.substring(0, 200) + '...';
+                    } else {
+                        errorMessage += '\nRespuesta: ' + xhr.responseText;
+                    }
+                }
+                
+                $('#uploadError').text(errorMessage).show();
             },
             complete: function() {
                 $('#uploadImageBtn').html('Subir imagen');

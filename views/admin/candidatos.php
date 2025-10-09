@@ -585,104 +585,8 @@ $admin_nombre = $_SESSION['admin_nombre'];
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
             
-            // Configurar la funcionalidad de carga de imagen de perfil
-            setupProfileImageUpload();
+            // Funcionalidad de carga de imagen manejada por profile-image-upload.js
         });
-        
-        // Manejo de la subida de imágenes de perfil
-        function setupProfileImageUpload() {
-            // Vista previa de la imagen seleccionada
-            $('#profile_image').change(function() {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#imagePreview').show();
-                        $('#imagePreview img').attr('src', e.target.result);
-                    }
-                    reader.readAsDataURL(file);
-                } else {
-                    $('#imagePreview').hide();
-                }
-            });
-            
-            // Subir la imagen al servidor
-            $('#uploadImageBtn').click(function() {
-                const fileInput = $('#profile_image')[0];
-                if (fileInput.files.length === 0) {
-                    $('#uploadError').text('Por favor, selecciona una imagen').show();
-                    return;
-                }
-                
-                const formData = new FormData();
-                formData.append('profile_image', fileInput.files[0]);
-                
-                // Mostrar indicador de carga
-                $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Subiendo...');
-                $(this).prop('disabled', true);
-                $('#uploadError').hide();
-                $('#uploadSuccess').hide();
-                
-                $.ajax({
-                    url: '/Login/upload_profile_image_simple.php',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            // Actualizar la imagen de perfil en TODAS las instancias de la página
-                            const newImageUrl = response.image_url + '?v=' + new Date().getTime();
-                            
-                            // Actualizar todas las imágenes de perfil del administrador (sidebar, header, etc.)
-                            $('img[id*="profile-image"], img[alt*="perfil"], img[alt*="Imagen de perfil"]').each(function() {
-                                $(this).attr('src', newImageUrl);
-                            });
-                            
-                            // Si ya hay una imagen específica en el sidebar, actualizarla
-                            if ($('#profile-image').length) {
-                                $('#profile-image').attr('src', newImageUrl);
-                            }
-                            // Si hay un ícono, reemplazarlo por la imagen
-                            else if ($('#profile-icon').length) {
-                                const imgHtml = '<img id="profile-image" src="' + newImageUrl + '" alt="Imagen de perfil" ' +
-                                               'class="rounded-circle img-fluid mb-2" style="width: 80px; height: 80px; object-fit: cover;">';
-                                $('#profile-icon').replaceWith(imgHtml);
-                            }
-                            
-                            // Actualizar cualquier imagen de administrador en el header o navbar
-                            $('.navbar img, .header img, .admin-profile img').each(function() {
-                                if ($(this).attr('alt') && ($(this).attr('alt').includes('admin') || $(this).attr('alt').includes('perfil'))) {
-                                    $(this).attr('src', newImageUrl);
-                                }
-                            });
-                            
-                            // Mostrar mensaje de éxito
-                            $('#uploadSuccess').text(response.message).show();
-                            
-                            // Cerrar el modal después de 2 segundos
-                            setTimeout(function() {
-                                $('#profileImageModal').modal('hide');
-                                // Limpiar el formulario
-                                $('#profileImageForm')[0].reset();
-                                $('#imagePreview').hide();
-                                $('#uploadSuccess').hide();
-                            }, 2000);
-                        } else {
-                            $('#uploadError').text(response.message).show();
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        $('#uploadError').text('Error al subir la imagen: ' + error).show();
-                    },
-                    complete: function() {
-                        $('#uploadImageBtn').html('Subir imagen');
-                        $('#uploadImageBtn').prop('disabled', false);
-                    }
-                });
-            });
-        }
         
         // Función para manejar el cambio de tipo de candidato
         function toggleGrado(selectElement, gradoDivId, gradoInputId, requiredSpanId, helpTextId) {
@@ -801,35 +705,7 @@ $admin_nombre = $_SESSION['admin_nombre'];
         });
     </script>
     
-    <!-- Modal para cambiar la imagen de perfil -->
-    <div class="modal fade" id="profileImageModal" tabindex="-1" aria-labelledby="profileImageModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="profileImageModalLabel">Cambiar imagen de perfil</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="profileImageForm" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="profile_image" class="form-label">Selecciona una nueva imagen</label>
-                            <input class="form-control" type="file" id="profile_image" name="profile_image" accept="image/*" required>
-                            <div class="form-text">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB.</div>
-                        </div>
-                        <div id="imagePreview" class="text-center my-3" style="display: none;">
-                            <img src="" alt="Vista previa" class="img-fluid rounded" style="max-height: 200px;">
-                        </div>
-                        <div class="alert alert-danger" id="uploadError" style="display: none;"></div>
-                        <div class="alert alert-success" id="uploadSuccess" style="display: none;"></div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="uploadImageBtn">Subir imagen</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Modal y JavaScript incluidos desde sidebar.php -->
     
 </body>
 </html>

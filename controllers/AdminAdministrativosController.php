@@ -60,13 +60,13 @@ class AdminAdministrativosController {
 
             // Obtener datos del formulario
             $datos = [
-                'cedula' => filter_input(INPUT_POST, 'cedula', FILTER_SANITIZE_STRING),
-                'nombre' => filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_STRING),
-                'apellido' => filter_input(INPUT_POST, 'apellido', FILTER_SANITIZE_STRING),
+                'cedula' => filter_input(INPUT_POST, 'cedula', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'nombre' => filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'apellido' => filter_input(INPUT_POST, 'apellido', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
                 'correo' => filter_input(INPUT_POST, 'correo', FILTER_SANITIZE_EMAIL),
-                'cargo' => filter_input(INPUT_POST, 'cargo', FILTER_SANITIZE_STRING),
-                'telefono' => filter_input(INPUT_POST, 'telefono', FILTER_SANITIZE_STRING),
-                'direccion' => filter_input(INPUT_POST, 'direccion', FILTER_SANITIZE_STRING),
+                'cargo' => filter_input(INPUT_POST, 'cargo', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'telefono' => filter_input(INPUT_POST, 'telefono', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'direccion' => filter_input(INPUT_POST, 'direccion', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
                 'estado' => 'Activo'
             ];
 
@@ -113,17 +113,17 @@ class AdminAdministrativosController {
                 exit();
             }
 
-            $cedula_original = filter_input(INPUT_POST, 'cedula_original', FILTER_SANITIZE_STRING);
+            $cedula_original = filter_input(INPUT_POST, 'cedula_original', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             
             $datos = [
-                'cedula' => filter_input(INPUT_POST, 'cedula', FILTER_SANITIZE_STRING),
-                'nombre' => filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_STRING),
-                'apellido' => filter_input(INPUT_POST, 'apellido', FILTER_SANITIZE_STRING),
+                'cedula' => filter_input(INPUT_POST, 'cedula', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'nombre' => filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'apellido' => filter_input(INPUT_POST, 'apellido', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
                 'correo' => filter_input(INPUT_POST, 'correo', FILTER_SANITIZE_EMAIL),
-                'cargo' => filter_input(INPUT_POST, 'cargo', FILTER_SANITIZE_STRING),
-                'telefono' => filter_input(INPUT_POST, 'telefono', FILTER_SANITIZE_STRING),
-                'direccion' => filter_input(INPUT_POST, 'direccion', FILTER_SANITIZE_STRING),
-                'estado' => filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING)
+                'cargo' => filter_input(INPUT_POST, 'cargo', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'telefono' => filter_input(INPUT_POST, 'telefono', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'direccion' => filter_input(INPUT_POST, 'direccion', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'estado' => filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_FULL_SPECIAL_CHARS)
             ];
 
             // Validar datos requeridos
@@ -171,7 +171,7 @@ class AdminAdministrativosController {
                 exit();
             }
 
-            $cedula = filter_input(INPUT_POST, 'cedula', FILTER_SANITIZE_STRING);
+            $cedula = filter_input(INPUT_POST, 'cedula', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             if (empty($cedula)) {
                 $_SESSION['mensaje'] = "Cédula no válida.";
